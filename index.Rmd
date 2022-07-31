@@ -47,7 +47,7 @@ sourceCpp("src/count_events.cpp")
 xaringanExtra::use_banner(
  top_left = "Sharing methods with R(cpp)",
  top_right = "Byron C Jaeger",
- bottom_left = "bit.ly/my-awesome-talk",
+ bottom_left = "https://bcjaeger.github.io/seminar-fastpack/",
  exclude = c("inverse")
 )
 
@@ -80,13 +80,13 @@ background-size: contain
 
 ---
 
-```{r, out.width='100%', echo = FALSE}
+```{r, out.width='90%', echo = FALSE}
 knitr::include_graphics("img/aorsf-bench-time_1.png")
 ```
 
 ---
 
-```{r, out.width='100%', echo = FALSE}
+```{r, out.width='90%', echo = FALSE}
 knitr::include_graphics("img/aorsf-bench-time_2.png")
 ```
 
@@ -106,6 +106,8 @@ class: center, middle
 
 - it gives you data on how fast your code runs
 
+--
+
 - it encourages you to write more modular functions (a good thing)
 
 
@@ -124,12 +126,16 @@ group = sample(x = c(0L, 1L, 2L), size = 1e5, replace = TRUE)
 
 ```
 
-__Step 2. Define the competitors__ (must give the same answer)
+--
+
+__Step 2. Define the reference competitors__
 
 ```{r}
 
 # competitors: table() and tapply()
-all(table(status, group)[2, ] == tapply(status, group, FUN = sum))
+table(status, group)[2, ] 
+
+tapply(status, group, FUN = sum)
 
 ```
 
@@ -247,6 +253,7 @@ microbenchmark(table = table(status, group)[2, ],
                rcpp_count_int = rcpp_count_int(status, group))
 ```
 
+--
 
 ```{r, echo = FALSE}
 
@@ -301,9 +308,13 @@ class: center, middle
 
 Tracing your data means being notified when 
 
-- your data is copied
+- your data are copied
+
+--
 
 - your data are cast to a different type
+
+--
 
 ## So, why trace?
 
@@ -340,16 +351,24 @@ data_2$x[1] <- 10
 
 ```
 
-Yikes! Not just one, but 2 memory messages
+Yikes! Not just one, but _two_ memory messages
 
-- Why the first message? `data_2` is no longer the same as `data`, so they can't share memory
+--
 
-- Why the second message? R assumes `10` is a double, so `x` is coerced from an integer vector to a double.
+- `data_2` is no longer the same as `data`, so they can't share memory
+
+--
+
+- R assumes `10` is a double,<sup>1</sup> so `x` is cast from an integer double.
 
 ```{r}
 # PS: don't forget to untrace
 untracemem(data)
 ```
+
+.footnote[
+1. R also assumes `1:10` is integer valued, so `x` was originally created as an integer vector.
+]
 
 ---
 ## So, who's copying data?
@@ -362,6 +381,8 @@ tracemem(group)
 ---
 ## So, who's copying data?
 
+`table` makes no copies
+
 ```{r}
 table(status, group)
 ```
@@ -370,6 +391,8 @@ table(status, group)
 ---
 ## So, who's copying data?
 
+`tapply` copies the `group` data
+
 ```{r}
 tapply(status, group, sum)
 ```
@@ -377,12 +400,16 @@ tapply(status, group, sum)
 ---
 ## So, who's copying data?
 
+`rcpp_count_dbl` casts both vectors from integer to double
+
 ```{r}
 rcpp_count_dbl(status, group, n_groups = 3)
 ```
 
 ---
 ## So, who's copying data?
+
+`rcpp_count_int` makes no copies
 
 ```{r}
 rcpp_count_int(status, group, n_groups = 3)

@@ -18,7 +18,7 @@ class: center, middle, inverse, title-slide
 ## Four guidelines for faster code
 ### Byron C Jaeger
 ### Wake Forest University School of Medicine
-### 2022/08/08 (updated: 2022-07-28)
+### 2022/08/08 (updated: 2022-07-31)
 
 ---
 
@@ -31,7 +31,7 @@ class: center, middle
 
 
 <script>document.addEventListener('DOMContentLoaded',function(){new xeBanner(JSON.parse('{"left":"Sharing methods with R(cpp)","right":"Byron C Jaeger","exclude":["inverse"],"position":"top"}'))})</script>
-<script>document.addEventListener('DOMContentLoaded',function(){new xeBanner(JSON.parse('{"left":"bit.ly/my-awesome-talk","exclude":["inverse"],"position":"bottom"}'))})</script>
+<script>document.addEventListener('DOMContentLoaded',function(){new xeBanner(JSON.parse('{"left":"https://bcjaeger.github.io/seminar-fastpack/","exclude":["inverse"],"position":"bottom"}'))})</script>
 
 
 # Background
@@ -60,11 +60,11 @@ background-size: contain
 
 ---
 
-&lt;img src="img/aorsf-bench-time_1.png" width="100%" /&gt;
+&lt;img src="img/aorsf-bench-time_1.png" width="90%" /&gt;
 
 ---
 
-&lt;img src="img/aorsf-bench-time_2.png" width="100%" /&gt;
+&lt;img src="img/aorsf-bench-time_2.png" width="90%" /&gt;
 
 
 ---
@@ -81,6 +81,8 @@ class: center, middle
 ## Why benchmark?
 
 - it gives you data on how fast your code runs
+
+--
 
 - it encourages you to write more modular functions (a good thing)
 
@@ -99,16 +101,28 @@ status = sample(x = c(0L, 1L), size = 1e5, replace = TRUE)
 group = sample(x = c(0L, 1L, 2L), size = 1e5, replace = TRUE)
 ```
 
-__Step 2. Define the competitors__ (must give the same answer)
+--
+
+__Step 2. Define the reference competitors__
 
 
 ```r
 # competitors: table() and tapply()
-all(table(status, group)[2, ] == tapply(status, group, FUN = sum))
+table(status, group)[2, ] 
 ```
 
 ```
-## [1] TRUE
+##     0     1     2 
+## 16690 16751 16688
+```
+
+```r
+tapply(status, group, FUN = sum)
+```
+
+```
+##     0     1     2 
+## 16690 16751 16688
 ```
 
 ---
@@ -220,13 +234,14 @@ microbenchmark(table = table(status, group)[2, ],
                rcpp_count_int = rcpp_count_int(status, group))
 ```
 
+--
 
-<div id="jokyvcplfa" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="zrlamounav" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#jokyvcplfa .gt_table {
+#zrlamounav .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -251,7 +266,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-left-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_heading {
+#zrlamounav .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -263,7 +278,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_title {
+#zrlamounav .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -275,7 +290,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-bottom-width: 0;
 }
 
-#jokyvcplfa .gt_subtitle {
+#zrlamounav .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -287,13 +302,13 @@ microbenchmark(table = table(status, group)[2, ],
   border-top-width: 0;
 }
 
-#jokyvcplfa .gt_bottom_border {
+#zrlamounav .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_col_headings {
+#zrlamounav .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -308,7 +323,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_col_heading {
+#zrlamounav .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -328,7 +343,7 @@ microbenchmark(table = table(status, group)[2, ],
   overflow-x: hidden;
 }
 
-#jokyvcplfa .gt_column_spanner_outer {
+#zrlamounav .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -340,15 +355,15 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 4px;
 }
 
-#jokyvcplfa .gt_column_spanner_outer:first-child {
+#zrlamounav .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jokyvcplfa .gt_column_spanner_outer:last-child {
+#zrlamounav .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jokyvcplfa .gt_column_spanner {
+#zrlamounav .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -360,7 +375,7 @@ microbenchmark(table = table(status, group)[2, ],
   width: 100%;
 }
 
-#jokyvcplfa .gt_group_heading {
+#zrlamounav .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -385,7 +400,7 @@ microbenchmark(table = table(status, group)[2, ],
   vertical-align: middle;
 }
 
-#jokyvcplfa .gt_empty_group_heading {
+#zrlamounav .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -400,15 +415,15 @@ microbenchmark(table = table(status, group)[2, ],
   vertical-align: middle;
 }
 
-#jokyvcplfa .gt_from_md > :first-child {
+#zrlamounav .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jokyvcplfa .gt_from_md > :last-child {
+#zrlamounav .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jokyvcplfa .gt_row {
+#zrlamounav .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -427,7 +442,7 @@ microbenchmark(table = table(status, group)[2, ],
   overflow-x: hidden;
 }
 
-#jokyvcplfa .gt_stub {
+#zrlamounav .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -440,7 +455,7 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#jokyvcplfa .gt_stub_row_group {
+#zrlamounav .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -454,11 +469,11 @@ microbenchmark(table = table(status, group)[2, ],
   vertical-align: top;
 }
 
-#jokyvcplfa .gt_row_group_first td {
+#zrlamounav .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jokyvcplfa .gt_summary_row {
+#zrlamounav .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -468,16 +483,16 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#jokyvcplfa .gt_first_summary_row {
+#zrlamounav .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_first_summary_row.thick {
+#zrlamounav .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jokyvcplfa .gt_last_summary_row {
+#zrlamounav .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -487,7 +502,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-bottom-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_grand_summary_row {
+#zrlamounav .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -497,7 +512,7 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#jokyvcplfa .gt_first_grand_summary_row {
+#zrlamounav .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -507,11 +522,11 @@ microbenchmark(table = table(status, group)[2, ],
   border-top-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_striped {
+#zrlamounav .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jokyvcplfa .gt_table_body {
+#zrlamounav .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -520,7 +535,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-bottom-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_footnotes {
+#zrlamounav .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -534,7 +549,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_footnote {
+#zrlamounav .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -543,7 +558,7 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#jokyvcplfa .gt_sourcenotes {
+#zrlamounav .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -557,7 +572,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#jokyvcplfa .gt_sourcenote {
+#zrlamounav .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -565,36 +580,36 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#jokyvcplfa .gt_left {
+#zrlamounav .gt_left {
   text-align: left;
 }
 
-#jokyvcplfa .gt_center {
+#zrlamounav .gt_center {
   text-align: center;
 }
 
-#jokyvcplfa .gt_right {
+#zrlamounav .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jokyvcplfa .gt_font_normal {
+#zrlamounav .gt_font_normal {
   font-weight: normal;
 }
 
-#jokyvcplfa .gt_font_bold {
+#zrlamounav .gt_font_bold {
   font-weight: bold;
 }
 
-#jokyvcplfa .gt_font_italic {
+#zrlamounav .gt_font_italic {
   font-style: italic;
 }
 
-#jokyvcplfa .gt_super {
+#zrlamounav .gt_super {
   font-size: 65%;
 }
 
-#jokyvcplfa .gt_two_val_uncert {
+#zrlamounav .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -603,31 +618,31 @@ microbenchmark(table = table(status, group)[2, ],
   margin-left: 0.1em;
 }
 
-#jokyvcplfa .gt_footnote_marks {
+#zrlamounav .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#jokyvcplfa .gt_asterisk {
+#zrlamounav .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jokyvcplfa .gt_slash_mark {
+#zrlamounav .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#jokyvcplfa .gt_fraction_numerator {
+#zrlamounav .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#jokyvcplfa .gt_fraction_denominator {
+#zrlamounav .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -704,9 +719,13 @@ class: center, middle
 
 Tracing your data means being notified when 
 
-- your data is copied
+- your data are copied
+
+--
 
 - your data are cast to a different type
+
+--
 
 ## So, why trace?
 
@@ -723,7 +742,7 @@ tracemem(data)
 ```
 
 ```
-## [1] "&lt;00000000220BB2F8&gt;"
+## [1] "&lt;0000000022003AD8&gt;"
 ```
 
 No copies here
@@ -745,21 +764,29 @@ data_2$x[1] &lt;- 10
 ```
 
 ```
-## tracemem[0x00000000220bb2f8 -&gt; 0x00000000224c0880]: eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
-## tracemem[0x00000000224c0880 -&gt; 0x00000000224c0730]: $&lt;-.data.frame $&lt;- eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
+## tracemem[0x0000000022003ad8 -&gt; 0x0000000022409060]: eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
+## tracemem[0x0000000022409060 -&gt; 0x0000000022408f10]: $&lt;-.data.frame $&lt;- eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
 ```
 
-Yikes! Not just one, but 2 memory messages
+Yikes! Not just one, but _two_ memory messages
 
-- Why the first message? `data_2` is no longer the same as `data`, so they can't share memory
+--
 
-- Why the second message? R assumes `10` is a double, so `x` is coerced from an integer vector to a double.
+- `data_2` is no longer the same as `data`, so they can't share memory
+
+--
+
+- R assumes `10` is a double,&lt;sup&gt;1&lt;/sup&gt; so `x` is cast from an integer double.
 
 
 ```r
 # PS: don't forget to untrace
 untracemem(data)
 ```
+
+.footnote[
+1. R also assumes `1:10` is integer valued, so `x` was originally created as an integer vector.
+]
 
 ---
 ## So, who's copying data?
@@ -770,7 +797,7 @@ tracemem(status)
 ```
 
 ```
-## [1] "&lt;00007FF4FD980010&gt;"
+## [1] "&lt;00007FF4FD850010&gt;"
 ```
 
 ```r
@@ -778,11 +805,13 @@ tracemem(group)
 ```
 
 ```
-## [1] "&lt;00007FF4FD8A0010&gt;"
+## [1] "&lt;00007FF4FD770010&gt;"
 ```
 
 ---
 ## So, who's copying data?
+
+`table` makes no copies
 
 
 ```r
@@ -792,13 +821,15 @@ table(status, group)
 ```
 ##       group
 ## status     0     1     2
-##      0 16571 16537 16720
-##      1 16585 16783 16804
+##      0 16633 16604 16634
+##      1 16690 16751 16688
 ```
 
 
 ---
 ## So, who's copying data?
+
+`tapply` copies the `group` data
 
 
 ```r
@@ -806,16 +837,18 @@ tapply(status, group, sum)
 ```
 
 ```
-## tracemem[0x00007ff4fd8a0010 -&gt; 0x00007ff4fcae0010]: FUN lapply tapply eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
+## tracemem[0x00007ff4fd770010 -&gt; 0x00007ff4fcae0010]: FUN lapply tapply eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
 ```
 
 ```
 ##     0     1     2 
-## 16585 16783 16804
+## 16690 16751 16688
 ```
 
 ---
 ## So, who's copying data?
+
+`rcpp_count_dbl` casts both vectors from integer to double
 
 
 ```r
@@ -823,16 +856,18 @@ rcpp_count_dbl(status, group, n_groups = 3)
 ```
 
 ```
-## tracemem[0x00007ff4fd8a0010 -&gt; 0x00007ff4fc8c0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
-## tracemem[0x00007ff4fd980010 -&gt; 0x00007ff4fc7f0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
+## tracemem[0x00007ff4fd770010 -&gt; 0x00007ff4fc8c0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
+## tracemem[0x00007ff4fd850010 -&gt; 0x00007ff4fc7f0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
 ```
 
 ```
-## [1] 16585 16783 16804
+## [1] 16690 16751 16688
 ```
 
 ---
 ## So, who's copying data?
+
+`rcpp_count_int` makes no copies
 
 
 ```r
@@ -840,19 +875,19 @@ rcpp_count_int(status, group, n_groups = 3)
 ```
 
 ```
-## [1] 16585 16783 16804
+## [1] 16690 16751 16688
 ```
 
 ---
 
 ## This makes more sense now
 
-<div id="qmuvzgdbvy" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="umogfopnrr" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#qmuvzgdbvy .gt_table {
+#umogfopnrr .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -877,7 +912,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-left-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_heading {
+#umogfopnrr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -889,7 +924,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_title {
+#umogfopnrr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -901,7 +936,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-bottom-width: 0;
 }
 
-#qmuvzgdbvy .gt_subtitle {
+#umogfopnrr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -913,13 +948,13 @@ rcpp_count_int(status, group, n_groups = 3)
   border-top-width: 0;
 }
 
-#qmuvzgdbvy .gt_bottom_border {
+#umogfopnrr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_col_headings {
+#umogfopnrr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -934,7 +969,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_col_heading {
+#umogfopnrr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -954,7 +989,7 @@ rcpp_count_int(status, group, n_groups = 3)
   overflow-x: hidden;
 }
 
-#qmuvzgdbvy .gt_column_spanner_outer {
+#umogfopnrr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -966,15 +1001,15 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 4px;
 }
 
-#qmuvzgdbvy .gt_column_spanner_outer:first-child {
+#umogfopnrr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qmuvzgdbvy .gt_column_spanner_outer:last-child {
+#umogfopnrr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qmuvzgdbvy .gt_column_spanner {
+#umogfopnrr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -986,7 +1021,7 @@ rcpp_count_int(status, group, n_groups = 3)
   width: 100%;
 }
 
-#qmuvzgdbvy .gt_group_heading {
+#umogfopnrr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1011,7 +1046,7 @@ rcpp_count_int(status, group, n_groups = 3)
   vertical-align: middle;
 }
 
-#qmuvzgdbvy .gt_empty_group_heading {
+#umogfopnrr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1026,15 +1061,15 @@ rcpp_count_int(status, group, n_groups = 3)
   vertical-align: middle;
 }
 
-#qmuvzgdbvy .gt_from_md > :first-child {
+#umogfopnrr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qmuvzgdbvy .gt_from_md > :last-child {
+#umogfopnrr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qmuvzgdbvy .gt_row {
+#umogfopnrr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1053,7 +1088,7 @@ rcpp_count_int(status, group, n_groups = 3)
   overflow-x: hidden;
 }
 
-#qmuvzgdbvy .gt_stub {
+#umogfopnrr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1066,7 +1101,7 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#qmuvzgdbvy .gt_stub_row_group {
+#umogfopnrr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1080,11 +1115,11 @@ rcpp_count_int(status, group, n_groups = 3)
   vertical-align: top;
 }
 
-#qmuvzgdbvy .gt_row_group_first td {
+#umogfopnrr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qmuvzgdbvy .gt_summary_row {
+#umogfopnrr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1094,16 +1129,16 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#qmuvzgdbvy .gt_first_summary_row {
+#umogfopnrr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_first_summary_row.thick {
+#umogfopnrr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qmuvzgdbvy .gt_last_summary_row {
+#umogfopnrr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1113,7 +1148,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-bottom-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_grand_summary_row {
+#umogfopnrr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1123,7 +1158,7 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#qmuvzgdbvy .gt_first_grand_summary_row {
+#umogfopnrr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1133,11 +1168,11 @@ rcpp_count_int(status, group, n_groups = 3)
   border-top-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_striped {
+#umogfopnrr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qmuvzgdbvy .gt_table_body {
+#umogfopnrr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1146,7 +1181,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-bottom-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_footnotes {
+#umogfopnrr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1160,7 +1195,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_footnote {
+#umogfopnrr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1169,7 +1204,7 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#qmuvzgdbvy .gt_sourcenotes {
+#umogfopnrr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1183,7 +1218,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#qmuvzgdbvy .gt_sourcenote {
+#umogfopnrr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1191,36 +1226,36 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#qmuvzgdbvy .gt_left {
+#umogfopnrr .gt_left {
   text-align: left;
 }
 
-#qmuvzgdbvy .gt_center {
+#umogfopnrr .gt_center {
   text-align: center;
 }
 
-#qmuvzgdbvy .gt_right {
+#umogfopnrr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qmuvzgdbvy .gt_font_normal {
+#umogfopnrr .gt_font_normal {
   font-weight: normal;
 }
 
-#qmuvzgdbvy .gt_font_bold {
+#umogfopnrr .gt_font_bold {
   font-weight: bold;
 }
 
-#qmuvzgdbvy .gt_font_italic {
+#umogfopnrr .gt_font_italic {
   font-style: italic;
 }
 
-#qmuvzgdbvy .gt_super {
+#umogfopnrr .gt_super {
   font-size: 65%;
 }
 
-#qmuvzgdbvy .gt_two_val_uncert {
+#umogfopnrr .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -1229,31 +1264,31 @@ rcpp_count_int(status, group, n_groups = 3)
   margin-left: 0.1em;
 }
 
-#qmuvzgdbvy .gt_footnote_marks {
+#umogfopnrr .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#qmuvzgdbvy .gt_asterisk {
+#umogfopnrr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qmuvzgdbvy .gt_slash_mark {
+#umogfopnrr .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#qmuvzgdbvy .gt_fraction_numerator {
+#umogfopnrr .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#qmuvzgdbvy .gt_fraction_denominator {
+#umogfopnrr .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -1403,12 +1438,12 @@ Yes, because the group indices are given to us by the group vector.
 ---
 ## 1 loop instead of 2
 
-<div id="rwmrceccjx" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kxrynhbaui" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#rwmrceccjx .gt_table {
+#kxrynhbaui .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1433,7 +1468,7 @@ Yes, because the group indices are given to us by the group vector.
   border-left-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_heading {
+#kxrynhbaui .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1445,7 +1480,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_title {
+#kxrynhbaui .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1457,7 +1492,7 @@ Yes, because the group indices are given to us by the group vector.
   border-bottom-width: 0;
 }
 
-#rwmrceccjx .gt_subtitle {
+#kxrynhbaui .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1469,13 +1504,13 @@ Yes, because the group indices are given to us by the group vector.
   border-top-width: 0;
 }
 
-#rwmrceccjx .gt_bottom_border {
+#kxrynhbaui .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_col_headings {
+#kxrynhbaui .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1490,7 +1525,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_col_heading {
+#kxrynhbaui .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1510,7 +1545,7 @@ Yes, because the group indices are given to us by the group vector.
   overflow-x: hidden;
 }
 
-#rwmrceccjx .gt_column_spanner_outer {
+#kxrynhbaui .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1522,15 +1557,15 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 4px;
 }
 
-#rwmrceccjx .gt_column_spanner_outer:first-child {
+#kxrynhbaui .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#rwmrceccjx .gt_column_spanner_outer:last-child {
+#kxrynhbaui .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#rwmrceccjx .gt_column_spanner {
+#kxrynhbaui .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1542,7 +1577,7 @@ Yes, because the group indices are given to us by the group vector.
   width: 100%;
 }
 
-#rwmrceccjx .gt_group_heading {
+#kxrynhbaui .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1567,7 +1602,7 @@ Yes, because the group indices are given to us by the group vector.
   vertical-align: middle;
 }
 
-#rwmrceccjx .gt_empty_group_heading {
+#kxrynhbaui .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1582,15 +1617,15 @@ Yes, because the group indices are given to us by the group vector.
   vertical-align: middle;
 }
 
-#rwmrceccjx .gt_from_md > :first-child {
+#kxrynhbaui .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#rwmrceccjx .gt_from_md > :last-child {
+#kxrynhbaui .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#rwmrceccjx .gt_row {
+#kxrynhbaui .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1609,7 +1644,7 @@ Yes, because the group indices are given to us by the group vector.
   overflow-x: hidden;
 }
 
-#rwmrceccjx .gt_stub {
+#kxrynhbaui .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1622,7 +1657,7 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#rwmrceccjx .gt_stub_row_group {
+#kxrynhbaui .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1636,11 +1671,11 @@ Yes, because the group indices are given to us by the group vector.
   vertical-align: top;
 }
 
-#rwmrceccjx .gt_row_group_first td {
+#kxrynhbaui .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#rwmrceccjx .gt_summary_row {
+#kxrynhbaui .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1650,16 +1685,16 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#rwmrceccjx .gt_first_summary_row {
+#kxrynhbaui .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_first_summary_row.thick {
+#kxrynhbaui .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#rwmrceccjx .gt_last_summary_row {
+#kxrynhbaui .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1669,7 +1704,7 @@ Yes, because the group indices are given to us by the group vector.
   border-bottom-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_grand_summary_row {
+#kxrynhbaui .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1679,7 +1714,7 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#rwmrceccjx .gt_first_grand_summary_row {
+#kxrynhbaui .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1689,11 +1724,11 @@ Yes, because the group indices are given to us by the group vector.
   border-top-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_striped {
+#kxrynhbaui .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#rwmrceccjx .gt_table_body {
+#kxrynhbaui .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1702,7 +1737,7 @@ Yes, because the group indices are given to us by the group vector.
   border-bottom-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_footnotes {
+#kxrynhbaui .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1716,7 +1751,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_footnote {
+#kxrynhbaui .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1725,7 +1760,7 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#rwmrceccjx .gt_sourcenotes {
+#kxrynhbaui .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1739,7 +1774,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#rwmrceccjx .gt_sourcenote {
+#kxrynhbaui .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1747,36 +1782,36 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#rwmrceccjx .gt_left {
+#kxrynhbaui .gt_left {
   text-align: left;
 }
 
-#rwmrceccjx .gt_center {
+#kxrynhbaui .gt_center {
   text-align: center;
 }
 
-#rwmrceccjx .gt_right {
+#kxrynhbaui .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#rwmrceccjx .gt_font_normal {
+#kxrynhbaui .gt_font_normal {
   font-weight: normal;
 }
 
-#rwmrceccjx .gt_font_bold {
+#kxrynhbaui .gt_font_bold {
   font-weight: bold;
 }
 
-#rwmrceccjx .gt_font_italic {
+#kxrynhbaui .gt_font_italic {
   font-style: italic;
 }
 
-#rwmrceccjx .gt_super {
+#kxrynhbaui .gt_super {
   font-size: 65%;
 }
 
-#rwmrceccjx .gt_two_val_uncert {
+#kxrynhbaui .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -1785,31 +1820,31 @@ Yes, because the group indices are given to us by the group vector.
   margin-left: 0.1em;
 }
 
-#rwmrceccjx .gt_footnote_marks {
+#kxrynhbaui .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#rwmrceccjx .gt_asterisk {
+#kxrynhbaui .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#rwmrceccjx .gt_slash_mark {
+#kxrynhbaui .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#rwmrceccjx .gt_fraction_numerator {
+#kxrynhbaui .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#rwmrceccjx .gt_fraction_denominator {
+#kxrynhbaui .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -1901,12 +1936,12 @@ class: center, middle
 
 Faster memory access and low-level parallelization 
 
-<div id="pnjqpkaquq" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="fisvmvzdtj" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#pnjqpkaquq .gt_table {
+#fisvmvzdtj .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1931,7 +1966,7 @@ Faster memory access and low-level parallelization
   border-left-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_heading {
+#fisvmvzdtj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1943,7 +1978,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_title {
+#fisvmvzdtj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1955,7 +1990,7 @@ Faster memory access and low-level parallelization
   border-bottom-width: 0;
 }
 
-#pnjqpkaquq .gt_subtitle {
+#fisvmvzdtj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1967,13 +2002,13 @@ Faster memory access and low-level parallelization
   border-top-width: 0;
 }
 
-#pnjqpkaquq .gt_bottom_border {
+#fisvmvzdtj .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_col_headings {
+#fisvmvzdtj .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1988,7 +2023,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_col_heading {
+#fisvmvzdtj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2008,7 +2043,7 @@ Faster memory access and low-level parallelization
   overflow-x: hidden;
 }
 
-#pnjqpkaquq .gt_column_spanner_outer {
+#fisvmvzdtj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2020,15 +2055,15 @@ Faster memory access and low-level parallelization
   padding-right: 4px;
 }
 
-#pnjqpkaquq .gt_column_spanner_outer:first-child {
+#fisvmvzdtj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pnjqpkaquq .gt_column_spanner_outer:last-child {
+#fisvmvzdtj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pnjqpkaquq .gt_column_spanner {
+#fisvmvzdtj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2040,7 +2075,7 @@ Faster memory access and low-level parallelization
   width: 100%;
 }
 
-#pnjqpkaquq .gt_group_heading {
+#fisvmvzdtj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2065,7 +2100,7 @@ Faster memory access and low-level parallelization
   vertical-align: middle;
 }
 
-#pnjqpkaquq .gt_empty_group_heading {
+#fisvmvzdtj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2080,15 +2115,15 @@ Faster memory access and low-level parallelization
   vertical-align: middle;
 }
 
-#pnjqpkaquq .gt_from_md > :first-child {
+#fisvmvzdtj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pnjqpkaquq .gt_from_md > :last-child {
+#fisvmvzdtj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pnjqpkaquq .gt_row {
+#fisvmvzdtj .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2107,7 +2142,7 @@ Faster memory access and low-level parallelization
   overflow-x: hidden;
 }
 
-#pnjqpkaquq .gt_stub {
+#fisvmvzdtj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2120,7 +2155,7 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#pnjqpkaquq .gt_stub_row_group {
+#fisvmvzdtj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2134,11 +2169,11 @@ Faster memory access and low-level parallelization
   vertical-align: top;
 }
 
-#pnjqpkaquq .gt_row_group_first td {
+#fisvmvzdtj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pnjqpkaquq .gt_summary_row {
+#fisvmvzdtj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2148,16 +2183,16 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#pnjqpkaquq .gt_first_summary_row {
+#fisvmvzdtj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_first_summary_row.thick {
+#fisvmvzdtj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pnjqpkaquq .gt_last_summary_row {
+#fisvmvzdtj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2167,7 +2202,7 @@ Faster memory access and low-level parallelization
   border-bottom-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_grand_summary_row {
+#fisvmvzdtj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2177,7 +2212,7 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#pnjqpkaquq .gt_first_grand_summary_row {
+#fisvmvzdtj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2187,11 +2222,11 @@ Faster memory access and low-level parallelization
   border-top-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_striped {
+#fisvmvzdtj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#pnjqpkaquq .gt_table_body {
+#fisvmvzdtj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2200,7 +2235,7 @@ Faster memory access and low-level parallelization
   border-bottom-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_footnotes {
+#fisvmvzdtj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2214,7 +2249,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_footnote {
+#fisvmvzdtj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -2223,7 +2258,7 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#pnjqpkaquq .gt_sourcenotes {
+#fisvmvzdtj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2237,7 +2272,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#pnjqpkaquq .gt_sourcenote {
+#fisvmvzdtj .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2245,36 +2280,36 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#pnjqpkaquq .gt_left {
+#fisvmvzdtj .gt_left {
   text-align: left;
 }
 
-#pnjqpkaquq .gt_center {
+#fisvmvzdtj .gt_center {
   text-align: center;
 }
 
-#pnjqpkaquq .gt_right {
+#fisvmvzdtj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pnjqpkaquq .gt_font_normal {
+#fisvmvzdtj .gt_font_normal {
   font-weight: normal;
 }
 
-#pnjqpkaquq .gt_font_bold {
+#fisvmvzdtj .gt_font_bold {
   font-weight: bold;
 }
 
-#pnjqpkaquq .gt_font_italic {
+#fisvmvzdtj .gt_font_italic {
   font-style: italic;
 }
 
-#pnjqpkaquq .gt_super {
+#fisvmvzdtj .gt_super {
   font-size: 65%;
 }
 
-#pnjqpkaquq .gt_two_val_uncert {
+#fisvmvzdtj .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -2283,31 +2318,31 @@ Faster memory access and low-level parallelization
   margin-left: 0.1em;
 }
 
-#pnjqpkaquq .gt_footnote_marks {
+#fisvmvzdtj .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#pnjqpkaquq .gt_asterisk {
+#fisvmvzdtj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pnjqpkaquq .gt_slash_mark {
+#fisvmvzdtj .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#pnjqpkaquq .gt_fraction_numerator {
+#fisvmvzdtj .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#pnjqpkaquq .gt_fraction_denominator {
+#fisvmvzdtj .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
