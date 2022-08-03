@@ -18,7 +18,7 @@ class: center, middle, inverse, title-slide
 ## Four guidelines for faster code
 ### Byron C Jaeger
 ### Wake Forest University School of Medicine
-### 2022/08/08 (updated: 2022-07-31)
+### 2022/08/08 (updated: 2022-08-03)
 
 ---
 
@@ -34,12 +34,44 @@ class: center, middle
 <script>document.addEventListener('DOMContentLoaded',function(){new xeBanner(JSON.parse('{"left":"https://bcjaeger.github.io/seminar-fastpack/","exclude":["inverse"],"position":"bottom"}'))})</script>
 
 
-# Background
+# What do biostatisticians do?
+
+---
+class: center, middle
+
+# 1. Create methods that can engage with contemporary data and make valid conclusions
+
+---
+class: center, middle
+
+# 2. Share those methods
+
+---
+class: center, middle
+
+# 3. - ??? many other things...
+
+---
+## Graduate training
+
+- Number of required courses on statistics and probability: 4+
+
+--
+
+- Number of required courses on software development: ???
+
+So how do most of us learn?
+
+---
+background-image: url("img/meme_software_books.jpg")
+background-size: 61%
 
 ---
 ## obliqueRSF
 
-In 2019, I made `obliqueRSF`, an R package to fit random survival forests using oblique recursive partitioning.
+In 2019, I made the `obliqueRSF` R package
+
+- oblique random survival forests
 
 --
 
@@ -60,12 +92,11 @@ background-size: contain
 
 ---
 
-&lt;img src="img/aorsf-bench-time_1.png" width="90%" /&gt;
+![](index_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
 
 ---
 
-&lt;img src="img/aorsf-bench-time_2.png" width="90%" /&gt;
-
+![](index_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
 
 ---
 class: center, middle, inverse
@@ -113,7 +144,7 @@ table(status, group)[2, ]
 
 ```
 ##     0     1     2 
-## 16690 16751 16688
+## 16786 16541 16846
 ```
 
 ```r
@@ -122,7 +153,7 @@ tapply(status, group, FUN = sum)
 
 ```
 ##     0     1     2 
-## 16690 16751 16688
+## 16786 16541 16846
 ```
 
 ---
@@ -172,49 +203,18 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericVector rcpp_count_dbl(NumericVector status,
-                             NumericVector group) {
- 
- NumericVector group_uni = sort_unique(group);
- NumericVector out(group_uni.length());
- 
- for( int i = 0; i &lt; group_uni.length(); i++ ){
+                             NumericVector group,
+                             int n_groups) {
+
+ NumericVector out(n_groups);
+
+ for( int i = 0; i &lt; n_groups; i++ ){
   for( int j = 0; j &lt; group.length(); j++ ){
-   if(group[j] == group_uni[i]) out[i] += status[j];
+   if(group[j] == i) out[i] += status[j];
   }
  }
- 
+
  return(out);
- 
-}
-
-```
-
----
-
-## How to benchmark?
-
-__Step 2 contd.__ Enter your own competitor(s)!
-
-
-```cpp
-#include &lt;Rcpp.h&gt;
-using namespace Rcpp;
-
-// [[Rcpp::export]]
-IntegerVector rcpp_count_int(IntegerVector status,
-                             IntegerVector group) {
- 
- IntegerVector group_uni = sort_unique(group);
- IntegerVector out(group_uni.length());
- 
- for( int i = 0; i &lt; group_uni.length(); i++ ){
-  for( int j = 0; j &lt; group.length(); j++ ){
-   if(group[j] == group_uni[i]) out[i] += status[j];
-  }
- }
- 
- return(out);
- 
 }
 
 ```
@@ -230,18 +230,17 @@ __Step 3. Off to the races:__
 library(microbenchmark)
 microbenchmark(table = table(status, group)[2, ],
                tapply = tapply(status, group, FUN = sum),
-               rcpp_count_dbl = rcpp_count_dbl(status, group),
-               rcpp_count_int = rcpp_count_int(status, group))
+               rcpp_count_dbl = rcpp_count_dbl(status, group, 3))
 ```
 
 --
 
-<div id="zrlamounav" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="yimtcrgmdp" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#zrlamounav .gt_table {
+#yimtcrgmdp .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -266,7 +265,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-left-color: #D3D3D3;
 }
 
-#zrlamounav .gt_heading {
+#yimtcrgmdp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -278,7 +277,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#zrlamounav .gt_title {
+#yimtcrgmdp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -290,7 +289,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-bottom-width: 0;
 }
 
-#zrlamounav .gt_subtitle {
+#yimtcrgmdp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -302,13 +301,13 @@ microbenchmark(table = table(status, group)[2, ],
   border-top-width: 0;
 }
 
-#zrlamounav .gt_bottom_border {
+#yimtcrgmdp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zrlamounav .gt_col_headings {
+#yimtcrgmdp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -323,7 +322,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#zrlamounav .gt_col_heading {
+#yimtcrgmdp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -343,7 +342,7 @@ microbenchmark(table = table(status, group)[2, ],
   overflow-x: hidden;
 }
 
-#zrlamounav .gt_column_spanner_outer {
+#yimtcrgmdp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -355,15 +354,15 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 4px;
 }
 
-#zrlamounav .gt_column_spanner_outer:first-child {
+#yimtcrgmdp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zrlamounav .gt_column_spanner_outer:last-child {
+#yimtcrgmdp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zrlamounav .gt_column_spanner {
+#yimtcrgmdp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -375,7 +374,7 @@ microbenchmark(table = table(status, group)[2, ],
   width: 100%;
 }
 
-#zrlamounav .gt_group_heading {
+#yimtcrgmdp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -400,7 +399,7 @@ microbenchmark(table = table(status, group)[2, ],
   vertical-align: middle;
 }
 
-#zrlamounav .gt_empty_group_heading {
+#yimtcrgmdp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -415,15 +414,15 @@ microbenchmark(table = table(status, group)[2, ],
   vertical-align: middle;
 }
 
-#zrlamounav .gt_from_md > :first-child {
+#yimtcrgmdp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zrlamounav .gt_from_md > :last-child {
+#yimtcrgmdp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zrlamounav .gt_row {
+#yimtcrgmdp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -442,7 +441,7 @@ microbenchmark(table = table(status, group)[2, ],
   overflow-x: hidden;
 }
 
-#zrlamounav .gt_stub {
+#yimtcrgmdp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -455,7 +454,7 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#zrlamounav .gt_stub_row_group {
+#yimtcrgmdp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -469,11 +468,11 @@ microbenchmark(table = table(status, group)[2, ],
   vertical-align: top;
 }
 
-#zrlamounav .gt_row_group_first td {
+#yimtcrgmdp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zrlamounav .gt_summary_row {
+#yimtcrgmdp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -483,16 +482,16 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#zrlamounav .gt_first_summary_row {
+#yimtcrgmdp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zrlamounav .gt_first_summary_row.thick {
+#yimtcrgmdp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zrlamounav .gt_last_summary_row {
+#yimtcrgmdp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -502,7 +501,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-bottom-color: #D3D3D3;
 }
 
-#zrlamounav .gt_grand_summary_row {
+#yimtcrgmdp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -512,7 +511,7 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#zrlamounav .gt_first_grand_summary_row {
+#yimtcrgmdp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -522,11 +521,11 @@ microbenchmark(table = table(status, group)[2, ],
   border-top-color: #D3D3D3;
 }
 
-#zrlamounav .gt_striped {
+#yimtcrgmdp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zrlamounav .gt_table_body {
+#yimtcrgmdp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -535,7 +534,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-bottom-color: #D3D3D3;
 }
 
-#zrlamounav .gt_footnotes {
+#yimtcrgmdp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -549,7 +548,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#zrlamounav .gt_footnote {
+#yimtcrgmdp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -558,7 +557,7 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#zrlamounav .gt_sourcenotes {
+#yimtcrgmdp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -572,7 +571,7 @@ microbenchmark(table = table(status, group)[2, ],
   border-right-color: #D3D3D3;
 }
 
-#zrlamounav .gt_sourcenote {
+#yimtcrgmdp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -580,36 +579,36 @@ microbenchmark(table = table(status, group)[2, ],
   padding-right: 5px;
 }
 
-#zrlamounav .gt_left {
+#yimtcrgmdp .gt_left {
   text-align: left;
 }
 
-#zrlamounav .gt_center {
+#yimtcrgmdp .gt_center {
   text-align: center;
 }
 
-#zrlamounav .gt_right {
+#yimtcrgmdp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zrlamounav .gt_font_normal {
+#yimtcrgmdp .gt_font_normal {
   font-weight: normal;
 }
 
-#zrlamounav .gt_font_bold {
+#yimtcrgmdp .gt_font_bold {
   font-weight: bold;
 }
 
-#zrlamounav .gt_font_italic {
+#yimtcrgmdp .gt_font_italic {
   font-style: italic;
 }
 
-#zrlamounav .gt_super {
+#yimtcrgmdp .gt_super {
   font-size: 65%;
 }
 
-#zrlamounav .gt_two_val_uncert {
+#yimtcrgmdp .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -618,31 +617,31 @@ microbenchmark(table = table(status, group)[2, ],
   margin-left: 0.1em;
 }
 
-#zrlamounav .gt_footnote_marks {
+#yimtcrgmdp .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#zrlamounav .gt_asterisk {
+#yimtcrgmdp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zrlamounav .gt_slash_mark {
+#yimtcrgmdp .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#zrlamounav .gt_fraction_numerator {
+#yimtcrgmdp .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#zrlamounav .gt_fraction_denominator {
+#yimtcrgmdp .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -654,7 +653,7 @@ microbenchmark(table = table(status, group)[2, ],
       <th colspan="7" class="gt_heading gt_title gt_font_normal" style>Benchmark demonstration: counting events in groups</th>
     </tr>
     <tr>
-      <th colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>table(), tapply(), and Rcpp functions</th>
+      <th colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>table(), tapply(), and rcpp_count_dbl()</th>
     </tr>
   </thead>
   <thead class="gt_col_headings">
@@ -675,33 +674,26 @@ microbenchmark(table = table(status, group)[2, ],
   </thead>
   <tbody class="gt_table_body">
     <tr><td class="gt_row gt_right gt_stub">table</td>
-<td class="gt_row gt_center">5.2</td>
-<td class="gt_row gt_center">6.2</td>
-<td class="gt_row gt_center">8.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.4</td>
-<td class="gt_row gt_center">7.0</td>
-<td class="gt_row gt_center">79</td></tr>
+<td class="gt_row gt_center">5.5</td>
+<td class="gt_row gt_center">6.0</td>
+<td class="gt_row gt_center">7.8</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.1</td>
+<td class="gt_row gt_center">6.3</td>
+<td class="gt_row gt_center">73</td></tr>
     <tr><td class="gt_row gt_right gt_stub">tapply</td>
-<td class="gt_row gt_center">2.2</td>
-<td class="gt_row gt_center">2.6</td>
-<td class="gt_row gt_center">3.4</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.6</td>
-<td class="gt_row gt_center">2.7</td>
-<td class="gt_row gt_center">80</td></tr>
-    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
-<td class="gt_row gt_center">1.7</td>
-<td class="gt_row gt_center">1.9</td>
 <td class="gt_row gt_center">2.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.9</td>
-<td class="gt_row gt_center">1.9</td>
-<td class="gt_row gt_center">10</td></tr>
-    <tr><td class="gt_row gt_right gt_stub">rcpp_count_int</td>
-<td class="gt_row gt_center">1.4</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">2.2</td></tr>
+<td class="gt_row gt_center">2.5</td>
+<td class="gt_row gt_center">3.2</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.5</td>
+<td class="gt_row gt_center">2.6</td>
+<td class="gt_row gt_center">81</td></tr>
+    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
+<td class="gt_row gt_center">1.6</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">2.0</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.8</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">18</td></tr>
   </tbody>
   
   
@@ -736,68 +728,11 @@ Copying and casting require additional memory, slowing down your code.
 
 
 ```r
-data &lt;- data.frame(x = 1:10)
-
-tracemem(data)
-```
-
-```
-## [1] "&lt;0000000022003AD8&gt;"
-```
-
-No copies here
-
-
-```r
-# as of R 4.0, `data_2` and `data` share memory
-data_2 &lt;- data
-```
-
----
-## How to trace?
-
-that is, until `data_2` is modified: 
-
-
-```r
-data_2$x[1] &lt;- 10
-```
-
-```
-## tracemem[0x0000000022003ad8 -&gt; 0x0000000022409060]: eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
-## tracemem[0x0000000022409060 -&gt; 0x0000000022408f10]: $&lt;-.data.frame $&lt;- eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
-```
-
-Yikes! Not just one, but _two_ memory messages
-
---
-
-- `data_2` is no longer the same as `data`, so they can't share memory
-
---
-
-- R assumes `10` is a double,&lt;sup&gt;1&lt;/sup&gt; so `x` is cast from an integer double.
-
-
-```r
-# PS: don't forget to untrace
-untracemem(data)
-```
-
-.footnote[
-1. R also assumes `1:10` is integer valued, so `x` was originally created as an integer vector.
-]
-
----
-## So, who's copying data?
-
-
-```r
 tracemem(status)
 ```
 
 ```
-## [1] "&lt;00007FF4FD850010&gt;"
+## [1] "&lt;00007FF4FD910010&gt;"
 ```
 
 ```r
@@ -805,8 +740,10 @@ tracemem(group)
 ```
 
 ```
-## [1] "&lt;00007FF4FD770010&gt;"
+## [1] "&lt;00007FF4FD830010&gt;"
 ```
+
+Now, R will yell at me if data in `status` or `group` are copied or cast to a different type. 
 
 ---
 ## So, who's copying data?
@@ -821,8 +758,8 @@ table(status, group)
 ```
 ##       group
 ## status     0     1     2
-##      0 16633 16604 16634
-##      1 16690 16751 16688
+##      0 16550 16622 16655
+##      1 16786 16541 16846
 ```
 
 
@@ -837,12 +774,12 @@ tapply(status, group, sum)
 ```
 
 ```
-## tracemem[0x00007ff4fd770010 -&gt; 0x00007ff4fcae0010]: FUN lapply tapply eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
+## tracemem[0x00007ff4fd830010 -&gt; 0x00007ff4fcb00010]: FUN lapply tapply eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
 ```
 
 ```
 ##     0     1     2 
-## 16690 16751 16688
+## 16786 16541 16846
 ```
 
 ---
@@ -856,13 +793,40 @@ rcpp_count_dbl(status, group, n_groups = 3)
 ```
 
 ```
-## tracemem[0x00007ff4fd770010 -&gt; 0x00007ff4fc8c0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
-## tracemem[0x00007ff4fd850010 -&gt; 0x00007ff4fc7f0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
+## tracemem[0x00007ff4fd830010 -&gt; 0x00007ff4fc8e0010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt; 
+## tracemem[0x00007ff4fd910010 -&gt; 0x00007ff4fc810010]: .Call rcpp_count_dbl eval eval eval_with_user_handlers withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir in_input_dir eng_r block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;
 ```
 
 ```
-## [1] 16690 16751 16688
+## [1] 16786 16541 16846
 ```
+
+---
+## Let's fix that
+
+
+```cpp
+#include &lt;Rcpp.h&gt;
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+IntegerVector rcpp_count_int(IntegerVector status,
+                             IntegerVector group,
+                             int n_groups) {
+
+ IntegerVector out(n_groups);
+
+ for( int i = 0; i &lt; n_groups; i++ ){
+  for( int j = 0; j &lt; group.length(); j++ ){
+   if(group[j] == i) out[i] += status[j];
+  }
+ }
+
+ return(out);
+}
+
+```
+
 
 ---
 ## So, who's copying data?
@@ -875,19 +839,20 @@ rcpp_count_int(status, group, n_groups = 3)
 ```
 
 ```
-## [1] 16690 16751 16688
+## [1] 16786 16541 16846
 ```
 
 ---
+class: center, middle
 
-## This makes more sense now
+## Better!
 
-<div id="umogfopnrr" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ltuccrklch" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#umogfopnrr .gt_table {
+#ltuccrklch .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -912,7 +877,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-left-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_heading {
+#ltuccrklch .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -924,7 +889,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_title {
+#ltuccrklch .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -936,7 +901,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-bottom-width: 0;
 }
 
-#umogfopnrr .gt_subtitle {
+#ltuccrklch .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -948,13 +913,13 @@ rcpp_count_int(status, group, n_groups = 3)
   border-top-width: 0;
 }
 
-#umogfopnrr .gt_bottom_border {
+#ltuccrklch .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_col_headings {
+#ltuccrklch .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -969,7 +934,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_col_heading {
+#ltuccrklch .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -989,7 +954,7 @@ rcpp_count_int(status, group, n_groups = 3)
   overflow-x: hidden;
 }
 
-#umogfopnrr .gt_column_spanner_outer {
+#ltuccrklch .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1001,15 +966,15 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 4px;
 }
 
-#umogfopnrr .gt_column_spanner_outer:first-child {
+#ltuccrklch .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#umogfopnrr .gt_column_spanner_outer:last-child {
+#ltuccrklch .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#umogfopnrr .gt_column_spanner {
+#ltuccrklch .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1021,7 +986,7 @@ rcpp_count_int(status, group, n_groups = 3)
   width: 100%;
 }
 
-#umogfopnrr .gt_group_heading {
+#ltuccrklch .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1046,7 +1011,7 @@ rcpp_count_int(status, group, n_groups = 3)
   vertical-align: middle;
 }
 
-#umogfopnrr .gt_empty_group_heading {
+#ltuccrklch .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1061,15 +1026,15 @@ rcpp_count_int(status, group, n_groups = 3)
   vertical-align: middle;
 }
 
-#umogfopnrr .gt_from_md > :first-child {
+#ltuccrklch .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#umogfopnrr .gt_from_md > :last-child {
+#ltuccrklch .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#umogfopnrr .gt_row {
+#ltuccrklch .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1088,7 +1053,7 @@ rcpp_count_int(status, group, n_groups = 3)
   overflow-x: hidden;
 }
 
-#umogfopnrr .gt_stub {
+#ltuccrklch .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1101,7 +1066,7 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#umogfopnrr .gt_stub_row_group {
+#ltuccrklch .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1115,11 +1080,11 @@ rcpp_count_int(status, group, n_groups = 3)
   vertical-align: top;
 }
 
-#umogfopnrr .gt_row_group_first td {
+#ltuccrklch .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#umogfopnrr .gt_summary_row {
+#ltuccrklch .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1129,16 +1094,16 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#umogfopnrr .gt_first_summary_row {
+#ltuccrklch .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_first_summary_row.thick {
+#ltuccrklch .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#umogfopnrr .gt_last_summary_row {
+#ltuccrklch .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1148,7 +1113,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-bottom-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_grand_summary_row {
+#ltuccrklch .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1158,7 +1123,7 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#umogfopnrr .gt_first_grand_summary_row {
+#ltuccrklch .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1168,11 +1133,11 @@ rcpp_count_int(status, group, n_groups = 3)
   border-top-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_striped {
+#ltuccrklch .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#umogfopnrr .gt_table_body {
+#ltuccrklch .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1181,7 +1146,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-bottom-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_footnotes {
+#ltuccrklch .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1195,7 +1160,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_footnote {
+#ltuccrklch .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1204,7 +1169,7 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#umogfopnrr .gt_sourcenotes {
+#ltuccrklch .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1218,7 +1183,7 @@ rcpp_count_int(status, group, n_groups = 3)
   border-right-color: #D3D3D3;
 }
 
-#umogfopnrr .gt_sourcenote {
+#ltuccrklch .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1226,36 +1191,36 @@ rcpp_count_int(status, group, n_groups = 3)
   padding-right: 5px;
 }
 
-#umogfopnrr .gt_left {
+#ltuccrklch .gt_left {
   text-align: left;
 }
 
-#umogfopnrr .gt_center {
+#ltuccrklch .gt_center {
   text-align: center;
 }
 
-#umogfopnrr .gt_right {
+#ltuccrklch .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#umogfopnrr .gt_font_normal {
+#ltuccrklch .gt_font_normal {
   font-weight: normal;
 }
 
-#umogfopnrr .gt_font_bold {
+#ltuccrklch .gt_font_bold {
   font-weight: bold;
 }
 
-#umogfopnrr .gt_font_italic {
+#ltuccrklch .gt_font_italic {
   font-style: italic;
 }
 
-#umogfopnrr .gt_super {
+#ltuccrklch .gt_super {
   font-size: 65%;
 }
 
-#umogfopnrr .gt_two_val_uncert {
+#ltuccrklch .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -1264,31 +1229,31 @@ rcpp_count_int(status, group, n_groups = 3)
   margin-left: 0.1em;
 }
 
-#umogfopnrr .gt_footnote_marks {
+#ltuccrklch .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#umogfopnrr .gt_asterisk {
+#ltuccrklch .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#umogfopnrr .gt_slash_mark {
+#ltuccrklch .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#umogfopnrr .gt_fraction_numerator {
+#ltuccrklch .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#umogfopnrr .gt_fraction_denominator {
+#ltuccrklch .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -1321,33 +1286,33 @@ rcpp_count_int(status, group, n_groups = 3)
   </thead>
   <tbody class="gt_table_body">
     <tr><td class="gt_row gt_right gt_stub">table</td>
-<td class="gt_row gt_center">5.2</td>
-<td class="gt_row gt_center">6.2</td>
-<td class="gt_row gt_center">8.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.4</td>
-<td class="gt_row gt_center">7.0</td>
-<td class="gt_row gt_center">79</td></tr>
+<td class="gt_row gt_center">5.5</td>
+<td class="gt_row gt_center">6.0</td>
+<td class="gt_row gt_center">7.8</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.1</td>
+<td class="gt_row gt_center">6.3</td>
+<td class="gt_row gt_center">73</td></tr>
     <tr><td class="gt_row gt_right gt_stub">tapply</td>
-<td class="gt_row gt_center">2.2</td>
-<td class="gt_row gt_center">2.6</td>
-<td class="gt_row gt_center">3.4</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.6</td>
-<td class="gt_row gt_center">2.7</td>
-<td class="gt_row gt_center">80</td></tr>
-    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
-<td class="gt_row gt_center">1.7</td>
-<td class="gt_row gt_center">1.9</td>
 <td class="gt_row gt_center">2.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.9</td>
-<td class="gt_row gt_center">1.9</td>
-<td class="gt_row gt_center">10</td></tr>
+<td class="gt_row gt_center">2.5</td>
+<td class="gt_row gt_center">3.2</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.5</td>
+<td class="gt_row gt_center">2.6</td>
+<td class="gt_row gt_center">81</td></tr>
+    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
+<td class="gt_row gt_center">1.6</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">2.0</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.8</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">18</td></tr>
     <tr><td class="gt_row gt_right gt_stub">rcpp_count_int</td>
 <td class="gt_row gt_center">1.4</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">2.2</td></tr>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.4</td>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center">2.4</td></tr>
   </tbody>
   
   
@@ -1436,14 +1401,48 @@ Yes, because the group indices are given to us by the group vector.
 &lt;img src="ink/vecs_9.png" width="2263" /&gt;
 
 ---
-## 1 loop instead of 2
 
-<div id="kxrynhbaui" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+
+```cpp
+
+#include &lt;Rcpp.h&gt;
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+IntegerVector rcpp_count_1loop_int(IntegerVector status,
+                                   IntegerVector group,
+                                   int n_groups) {
+
+ IntegerVector out(n_groups);
+
+ IntegerVector::iterator i;
+
+ int j = 0;
+
+ for(i = group.begin() ; i != group.end(); ++i, ++j){
+
+  out[*i] += status[j];
+
+ }
+
+ return(out);
+
+}
+
+```
+
+
+---
+class: center, middle
+
+## Much better!
+
+<div id="enyihmunoe" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#kxrynhbaui .gt_table {
+#enyihmunoe .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1468,7 +1467,7 @@ Yes, because the group indices are given to us by the group vector.
   border-left-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_heading {
+#enyihmunoe .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1480,7 +1479,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_title {
+#enyihmunoe .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1492,7 +1491,7 @@ Yes, because the group indices are given to us by the group vector.
   border-bottom-width: 0;
 }
 
-#kxrynhbaui .gt_subtitle {
+#enyihmunoe .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1504,13 +1503,13 @@ Yes, because the group indices are given to us by the group vector.
   border-top-width: 0;
 }
 
-#kxrynhbaui .gt_bottom_border {
+#enyihmunoe .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_col_headings {
+#enyihmunoe .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1525,7 +1524,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_col_heading {
+#enyihmunoe .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1545,7 +1544,7 @@ Yes, because the group indices are given to us by the group vector.
   overflow-x: hidden;
 }
 
-#kxrynhbaui .gt_column_spanner_outer {
+#enyihmunoe .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1557,15 +1556,15 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 4px;
 }
 
-#kxrynhbaui .gt_column_spanner_outer:first-child {
+#enyihmunoe .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#kxrynhbaui .gt_column_spanner_outer:last-child {
+#enyihmunoe .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#kxrynhbaui .gt_column_spanner {
+#enyihmunoe .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1577,7 +1576,7 @@ Yes, because the group indices are given to us by the group vector.
   width: 100%;
 }
 
-#kxrynhbaui .gt_group_heading {
+#enyihmunoe .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1602,7 +1601,7 @@ Yes, because the group indices are given to us by the group vector.
   vertical-align: middle;
 }
 
-#kxrynhbaui .gt_empty_group_heading {
+#enyihmunoe .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1617,15 +1616,15 @@ Yes, because the group indices are given to us by the group vector.
   vertical-align: middle;
 }
 
-#kxrynhbaui .gt_from_md > :first-child {
+#enyihmunoe .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#kxrynhbaui .gt_from_md > :last-child {
+#enyihmunoe .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#kxrynhbaui .gt_row {
+#enyihmunoe .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1644,7 +1643,7 @@ Yes, because the group indices are given to us by the group vector.
   overflow-x: hidden;
 }
 
-#kxrynhbaui .gt_stub {
+#enyihmunoe .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1657,7 +1656,7 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#kxrynhbaui .gt_stub_row_group {
+#enyihmunoe .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1671,11 +1670,11 @@ Yes, because the group indices are given to us by the group vector.
   vertical-align: top;
 }
 
-#kxrynhbaui .gt_row_group_first td {
+#enyihmunoe .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#kxrynhbaui .gt_summary_row {
+#enyihmunoe .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1685,16 +1684,16 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#kxrynhbaui .gt_first_summary_row {
+#enyihmunoe .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_first_summary_row.thick {
+#enyihmunoe .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#kxrynhbaui .gt_last_summary_row {
+#enyihmunoe .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1704,7 +1703,7 @@ Yes, because the group indices are given to us by the group vector.
   border-bottom-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_grand_summary_row {
+#enyihmunoe .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1714,7 +1713,7 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#kxrynhbaui .gt_first_grand_summary_row {
+#enyihmunoe .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1724,11 +1723,11 @@ Yes, because the group indices are given to us by the group vector.
   border-top-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_striped {
+#enyihmunoe .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#kxrynhbaui .gt_table_body {
+#enyihmunoe .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1737,7 +1736,7 @@ Yes, because the group indices are given to us by the group vector.
   border-bottom-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_footnotes {
+#enyihmunoe .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1751,7 +1750,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_footnote {
+#enyihmunoe .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1760,7 +1759,7 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#kxrynhbaui .gt_sourcenotes {
+#enyihmunoe .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1774,7 +1773,7 @@ Yes, because the group indices are given to us by the group vector.
   border-right-color: #D3D3D3;
 }
 
-#kxrynhbaui .gt_sourcenote {
+#enyihmunoe .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1782,36 +1781,36 @@ Yes, because the group indices are given to us by the group vector.
   padding-right: 5px;
 }
 
-#kxrynhbaui .gt_left {
+#enyihmunoe .gt_left {
   text-align: left;
 }
 
-#kxrynhbaui .gt_center {
+#enyihmunoe .gt_center {
   text-align: center;
 }
 
-#kxrynhbaui .gt_right {
+#enyihmunoe .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#kxrynhbaui .gt_font_normal {
+#enyihmunoe .gt_font_normal {
   font-weight: normal;
 }
 
-#kxrynhbaui .gt_font_bold {
+#enyihmunoe .gt_font_bold {
   font-weight: bold;
 }
 
-#kxrynhbaui .gt_font_italic {
+#enyihmunoe .gt_font_italic {
   font-style: italic;
 }
 
-#kxrynhbaui .gt_super {
+#enyihmunoe .gt_super {
   font-size: 65%;
 }
 
-#kxrynhbaui .gt_two_val_uncert {
+#enyihmunoe .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -1820,31 +1819,31 @@ Yes, because the group indices are given to us by the group vector.
   margin-left: 0.1em;
 }
 
-#kxrynhbaui .gt_footnote_marks {
+#enyihmunoe .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#kxrynhbaui .gt_asterisk {
+#enyihmunoe .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#kxrynhbaui .gt_slash_mark {
+#enyihmunoe .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#kxrynhbaui .gt_fraction_numerator {
+#enyihmunoe .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#kxrynhbaui .gt_fraction_denominator {
+#enyihmunoe .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -1877,40 +1876,40 @@ Yes, because the group indices are given to us by the group vector.
   </thead>
   <tbody class="gt_table_body">
     <tr><td class="gt_row gt_right gt_stub">table</td>
-<td class="gt_row gt_center">5.2</td>
-<td class="gt_row gt_center">6.2</td>
-<td class="gt_row gt_center">8.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.4</td>
-<td class="gt_row gt_center">7.0</td>
-<td class="gt_row gt_center">79</td></tr>
+<td class="gt_row gt_center">5.5</td>
+<td class="gt_row gt_center">6.0</td>
+<td class="gt_row gt_center">7.8</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.1</td>
+<td class="gt_row gt_center">6.3</td>
+<td class="gt_row gt_center">73</td></tr>
     <tr><td class="gt_row gt_right gt_stub">tapply</td>
-<td class="gt_row gt_center">2.2</td>
-<td class="gt_row gt_center">2.6</td>
-<td class="gt_row gt_center">3.4</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.6</td>
-<td class="gt_row gt_center">2.7</td>
-<td class="gt_row gt_center">80</td></tr>
-    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
-<td class="gt_row gt_center">1.7</td>
-<td class="gt_row gt_center">1.9</td>
 <td class="gt_row gt_center">2.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.9</td>
-<td class="gt_row gt_center">1.9</td>
-<td class="gt_row gt_center">10</td></tr>
+<td class="gt_row gt_center">2.5</td>
+<td class="gt_row gt_center">3.2</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.5</td>
+<td class="gt_row gt_center">2.6</td>
+<td class="gt_row gt_center">81</td></tr>
+    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
+<td class="gt_row gt_center">1.6</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">2.0</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.8</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">18</td></tr>
     <tr><td class="gt_row gt_right gt_stub">rcpp_count_int</td>
 <td class="gt_row gt_center">1.4</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">2.2</td></tr>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.4</td>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center">2.4</td></tr>
     <tr><td class="gt_row gt_right gt_stub">rcpp_count_1loop_int</td>
+<td class="gt_row gt_center">0.18</td>
 <td class="gt_row gt_center">0.19</td>
 <td class="gt_row gt_center">0.19</td>
-<td class="gt_row gt_center">0.21</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.20</td>
-<td class="gt_row gt_center">0.22</td>
-<td class="gt_row gt_center">0.94</td></tr>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.19</td>
+<td class="gt_row gt_center">0.19</td>
+<td class="gt_row gt_center">1.1</td></tr>
   </tbody>
   
   
@@ -1924,6 +1923,10 @@ class: center, middle
 # 4. Ride the Armadillo 
 
 ---
+background-image: url("img/meme_aorsf_car.png")
+background-size: 65%
+
+---
 
 ## Armadillo
 
@@ -1934,14 +1937,44 @@ class: center, middle
 ---
 ## Armadillo
 
-Faster memory access and low-level parallelization 
 
-<div id="fisvmvzdtj" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+```cpp
+#include &lt;RcppArmadillo.h&gt;
+#include &lt;RcppArmadilloExtensions/sample.h&gt;
+// [[Rcpp::depends(RcppArmadillo)]]
+using namespace Rcpp;
+using namespace arma;
+
+// [[Rcpp::export]]
+arma::ivec arma_count_1loop_int(arma::ivec&amp; status,
+                                arma::ivec&amp; group,
+                                arma::uword n_groups) {
+
+ ivec out(n_groups);
+ ivec::iterator i;
+ uword j = 0;
+
+ for(i = group.begin() ; i != group.end(); ++i, ++j){
+  out[*i] += status[j];
+ }
+
+ return(out);
+
+}
+
+```
+
+---
+class: center, middle
+
+## Better! (almost perfect)
+
+<div id="qkmmffttcw" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#fisvmvzdtj .gt_table {
+#qkmmffttcw .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1966,7 +1999,7 @@ Faster memory access and low-level parallelization
   border-left-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_heading {
+#qkmmffttcw .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1978,7 +2011,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_title {
+#qkmmffttcw .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1990,7 +2023,7 @@ Faster memory access and low-level parallelization
   border-bottom-width: 0;
 }
 
-#fisvmvzdtj .gt_subtitle {
+#qkmmffttcw .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2002,13 +2035,13 @@ Faster memory access and low-level parallelization
   border-top-width: 0;
 }
 
-#fisvmvzdtj .gt_bottom_border {
+#qkmmffttcw .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_col_headings {
+#qkmmffttcw .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2023,7 +2056,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_col_heading {
+#qkmmffttcw .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2043,7 +2076,7 @@ Faster memory access and low-level parallelization
   overflow-x: hidden;
 }
 
-#fisvmvzdtj .gt_column_spanner_outer {
+#qkmmffttcw .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2055,15 +2088,15 @@ Faster memory access and low-level parallelization
   padding-right: 4px;
 }
 
-#fisvmvzdtj .gt_column_spanner_outer:first-child {
+#qkmmffttcw .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fisvmvzdtj .gt_column_spanner_outer:last-child {
+#qkmmffttcw .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fisvmvzdtj .gt_column_spanner {
+#qkmmffttcw .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2075,7 +2108,7 @@ Faster memory access and low-level parallelization
   width: 100%;
 }
 
-#fisvmvzdtj .gt_group_heading {
+#qkmmffttcw .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2100,7 +2133,7 @@ Faster memory access and low-level parallelization
   vertical-align: middle;
 }
 
-#fisvmvzdtj .gt_empty_group_heading {
+#qkmmffttcw .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2115,15 +2148,15 @@ Faster memory access and low-level parallelization
   vertical-align: middle;
 }
 
-#fisvmvzdtj .gt_from_md > :first-child {
+#qkmmffttcw .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fisvmvzdtj .gt_from_md > :last-child {
+#qkmmffttcw .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fisvmvzdtj .gt_row {
+#qkmmffttcw .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2142,7 +2175,7 @@ Faster memory access and low-level parallelization
   overflow-x: hidden;
 }
 
-#fisvmvzdtj .gt_stub {
+#qkmmffttcw .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2155,7 +2188,7 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#fisvmvzdtj .gt_stub_row_group {
+#qkmmffttcw .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2169,11 +2202,11 @@ Faster memory access and low-level parallelization
   vertical-align: top;
 }
 
-#fisvmvzdtj .gt_row_group_first td {
+#qkmmffttcw .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fisvmvzdtj .gt_summary_row {
+#qkmmffttcw .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2183,16 +2216,16 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#fisvmvzdtj .gt_first_summary_row {
+#qkmmffttcw .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_first_summary_row.thick {
+#qkmmffttcw .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fisvmvzdtj .gt_last_summary_row {
+#qkmmffttcw .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2202,7 +2235,7 @@ Faster memory access and low-level parallelization
   border-bottom-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_grand_summary_row {
+#qkmmffttcw .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2212,7 +2245,7 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#fisvmvzdtj .gt_first_grand_summary_row {
+#qkmmffttcw .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2222,11 +2255,11 @@ Faster memory access and low-level parallelization
   border-top-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_striped {
+#qkmmffttcw .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fisvmvzdtj .gt_table_body {
+#qkmmffttcw .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2235,7 +2268,7 @@ Faster memory access and low-level parallelization
   border-bottom-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_footnotes {
+#qkmmffttcw .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2249,7 +2282,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_footnote {
+#qkmmffttcw .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -2258,7 +2291,7 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#fisvmvzdtj .gt_sourcenotes {
+#qkmmffttcw .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2272,7 +2305,7 @@ Faster memory access and low-level parallelization
   border-right-color: #D3D3D3;
 }
 
-#fisvmvzdtj .gt_sourcenote {
+#qkmmffttcw .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2280,36 +2313,36 @@ Faster memory access and low-level parallelization
   padding-right: 5px;
 }
 
-#fisvmvzdtj .gt_left {
+#qkmmffttcw .gt_left {
   text-align: left;
 }
 
-#fisvmvzdtj .gt_center {
+#qkmmffttcw .gt_center {
   text-align: center;
 }
 
-#fisvmvzdtj .gt_right {
+#qkmmffttcw .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fisvmvzdtj .gt_font_normal {
+#qkmmffttcw .gt_font_normal {
   font-weight: normal;
 }
 
-#fisvmvzdtj .gt_font_bold {
+#qkmmffttcw .gt_font_bold {
   font-weight: bold;
 }
 
-#fisvmvzdtj .gt_font_italic {
+#qkmmffttcw .gt_font_italic {
   font-style: italic;
 }
 
-#fisvmvzdtj .gt_super {
+#qkmmffttcw .gt_super {
   font-size: 65%;
 }
 
-#fisvmvzdtj .gt_two_val_uncert {
+#qkmmffttcw .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -2318,31 +2351,31 @@ Faster memory access and low-level parallelization
   margin-left: 0.1em;
 }
 
-#fisvmvzdtj .gt_footnote_marks {
+#qkmmffttcw .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#fisvmvzdtj .gt_asterisk {
+#qkmmffttcw .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fisvmvzdtj .gt_slash_mark {
+#qkmmffttcw .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#fisvmvzdtj .gt_fraction_numerator {
+#qkmmffttcw .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#fisvmvzdtj .gt_fraction_denominator {
+#qkmmffttcw .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -2375,47 +2408,54 @@ Faster memory access and low-level parallelization
   </thead>
   <tbody class="gt_table_body">
     <tr><td class="gt_row gt_right gt_stub">table</td>
-<td class="gt_row gt_center">5.2</td>
-<td class="gt_row gt_center">6.2</td>
-<td class="gt_row gt_center">8.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.4</td>
-<td class="gt_row gt_center">7.0</td>
-<td class="gt_row gt_center">79</td></tr>
+<td class="gt_row gt_center">5.5</td>
+<td class="gt_row gt_center">6.0</td>
+<td class="gt_row gt_center">7.8</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">6.1</td>
+<td class="gt_row gt_center">6.3</td>
+<td class="gt_row gt_center">73</td></tr>
     <tr><td class="gt_row gt_right gt_stub">tapply</td>
-<td class="gt_row gt_center">2.2</td>
-<td class="gt_row gt_center">2.6</td>
-<td class="gt_row gt_center">3.4</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.6</td>
-<td class="gt_row gt_center">2.7</td>
-<td class="gt_row gt_center">80</td></tr>
-    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
-<td class="gt_row gt_center">1.7</td>
-<td class="gt_row gt_center">1.9</td>
 <td class="gt_row gt_center">2.1</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.9</td>
-<td class="gt_row gt_center">1.9</td>
-<td class="gt_row gt_center">10</td></tr>
+<td class="gt_row gt_center">2.5</td>
+<td class="gt_row gt_center">3.2</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">2.5</td>
+<td class="gt_row gt_center">2.6</td>
+<td class="gt_row gt_center">81</td></tr>
+    <tr><td class="gt_row gt_right gt_stub">rcpp_count_dbl</td>
+<td class="gt_row gt_center">1.6</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">2.0</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.8</td>
+<td class="gt_row gt_center">1.8</td>
+<td class="gt_row gt_center">18</td></tr>
     <tr><td class="gt_row gt_right gt_stub">rcpp_count_int</td>
 <td class="gt_row gt_center">1.4</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.5</td>
-<td class="gt_row gt_center">1.5</td>
-<td class="gt_row gt_center">2.2</td></tr>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">1.4</td>
+<td class="gt_row gt_center">1.4</td>
+<td class="gt_row gt_center">2.4</td></tr>
     <tr><td class="gt_row gt_right gt_stub">rcpp_count_1loop_int</td>
+<td class="gt_row gt_center">0.18</td>
 <td class="gt_row gt_center">0.19</td>
 <td class="gt_row gt_center">0.19</td>
-<td class="gt_row gt_center">0.21</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.20</td>
-<td class="gt_row gt_center">0.22</td>
-<td class="gt_row gt_center">0.94</td></tr>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.19</td>
+<td class="gt_row gt_center">0.19</td>
+<td class="gt_row gt_center">1.1</td></tr>
     <tr><td class="gt_row gt_right gt_stub">arma_count_1loop_int</td>
 <td class="gt_row gt_center">0.07</td>
 <td class="gt_row gt_center">0.07</td>
 <td class="gt_row gt_center">0.08</td>
-<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.08</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.07</td>
 <td class="gt_row gt_center">0.08</td>
-<td class="gt_row gt_center">1.1</td></tr>
+<td class="gt_row gt_center">1.0</td></tr>
+    <tr><td class="gt_row gt_right gt_stub">sum</td>
+<td class="gt_row gt_center">0.05</td>
+<td class="gt_row gt_center">0.05</td>
+<td class="gt_row gt_center">0.05</td>
+<td class="gt_row gt_center" style="background-color: #F9E3D6; font-style: italic;">0.05</td>
+<td class="gt_row gt_center">0.05</td>
+<td class="gt_row gt_center">0.13</td></tr>
   </tbody>
   
   

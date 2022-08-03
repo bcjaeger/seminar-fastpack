@@ -21,8 +21,105 @@ options(htmltools.dir.version = FALSE)
 library(magrittr)
 library(gt)
 library(dplyr)
+library(purrr)
+library(ggplot2)
 library(Rcpp)
 library(microbenchmark)
+library(ggridges)
+library(table.glue)
+library(readr)
+
+
+gg_data <- read_rds("time_fig_data.rds") %>% 
+ mutate(
+  model = recode(
+   model,
+   'obliqueRSF-net' = 'obliqueRSF',
+   'aorsf-fast' = 'aorsf',
+   'rsf-standard' = 'randomForestSRC',
+   'ranger-extratrees' = 'ranger',
+   'cif-standard' = 'party'
+  )
+ )
+
+medians <- read_rds("time_fig_medians.rds") %>% 
+ mutate(
+  model = recode(
+   model,
+   'obliqueRSF-net' = 'obliqueRSF',
+   'aorsf-fast' = 'aorsf',
+   'rsf-standard' = 'randomForestSRC',
+   'ranger-extratrees' = 'ranger',
+   'cif-standard' = 'party'
+  ),
+  color = recode(
+   model,
+   'obliqueRSF' = 'black',
+   'aorsf' = 'white',
+   'randomForestSRC' = 'white',
+   'ranger' = 'white',
+   'party' = 'black'
+  )
+ ) %>% 
+ mutate(vjust = -0.25)
+
+fig_subsets <- list(
+ slide_one = c('obliqueRSF', 
+               'randomForestSRC',
+               'ranger', 
+               'party'),
+ slide_two = c('obliqueRSF', 
+               'aorsf', 
+               'randomForestSRC',
+               'ranger', 
+               'party')
+)
+
+fig_worker <- function(data, medians){
+
+  fig <- ggplot(data) +
+    aes(x = time, y = reorder(model, time, FUN=median),
+        fill = model) +
+    stat_density_ridges(
+      quantile_lines = TRUE,
+      quantiles = 0.5,
+      bandwidth = 0.2,
+      scale = 1
+    ) +
+    scale_x_log10(
+      breaks = c(0.01, 0.1, 1, 10, 100, 1000, 10000),
+      labels = c("0.01", "0.1", "1", "10", "100", "1,000", "10,000"),
+      expand = c(0,0)
+    ) +
+    geom_text(
+      data = medians,
+      hjust = medians$hjust,
+      vjust = medians$vjust,
+      color = medians$color,
+      aes(label = table_glue("{time}s"))
+    ) +
+    scale_fill_viridis_d() +
+    theme_minimal() +
+    theme(panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank(),
+          panel.grid.major.y = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          legend.position = '') +
+    labs(x = 'Time to fit a model and compute predictions, seconds',
+         y = '')
+
+
+}
+
+figs <- fig_subsets %>%
+    map(
+      ~ fig_worker(
+        data = filter(gg_data, model %in% .x),
+        medians = filter(medians, model %in% .x)
+      )
+    )
+
+
 
 # draw with pencil on slides
 # xaringanExtra::use_scribble()
@@ -54,12 +151,44 @@ xaringanExtra::use_banner(
 ```
 
 
-# Background
+# What do biostatisticians do?
+
+---
+class: center, middle
+
+# 1. Create methods that can engage with contemporary data and make valid conclusions
+
+---
+class: center, middle
+
+# 2. Share those methods
+
+---
+class: center, middle
+
+# 3. - ??? many other things...
+
+---
+## Graduate training
+
+- Number of required courses on statistics and probability: 4+
+
+--
+
+- Number of required courses on software development: ???
+
+So how do most of us learn?
+
+---
+background-image: url("img/meme_software_books.jpg")
+background-size: 61%
 
 ---
 ## obliqueRSF
 
-In 2019, I made `obliqueRSF`, an R package to fit random survival forests using oblique recursive partitioning.
+In 2019, I made the `obliqueRSF` R package
+
+- oblique random survival forests
 
 --
 
@@ -80,16 +209,15 @@ background-size: contain
 
 ---
 
-```{r, out.width='90%', echo = FALSE}
-knitr::include_graphics("img/aorsf-bench-time_1.png")
+```{r, fig.height = 6.5, fig.width = 8, echo = FALSE, dpi = 300}
+figs$slide_one
 ```
 
 ---
 
-```{r, out.width='90%', echo = FALSE}
-knitr::include_graphics("img/aorsf-bench-time_2.png")
+```{r, fig.height = 6.5, fig.width = 8, echo = FALSE, dpi = 300}
+figs$slide_two
 ```
-
 
 ---
 class: center, middle, inverse
@@ -193,49 +321,20 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericVector rcpp_count_dbl(NumericVector status,
-                             NumericVector group) {
- 
- NumericVector group_uni = sort_unique(group);
- NumericVector out(group_uni.length());
- 
- for( int i = 0; i < group_uni.length(); i++ ){
+                             NumericVector group,
+                             int n_groups) {
+
+ NumericVector out(n_groups);
+
+ for( int i = 0; i < n_groups; i++ ){
   for( int j = 0; j < group.length(); j++ ){
-   if(group[j] == group_uni[i]) out[i] += status[j];
+   if(group[j] == i) out[i] += status[j];
   }
  }
- 
+
  return(out);
- 
 }
 
-```
-
----
-
-## How to benchmark?
-
-__Step 2 contd.__ Enter your own competitor(s)!
-
-```{Rcpp, eval = FALSE}
-#include <Rcpp.h>
-using namespace Rcpp;
-
-// [[Rcpp::export]]
-IntegerVector rcpp_count_int(IntegerVector status,
-                             IntegerVector group) {
- 
- IntegerVector group_uni = sort_unique(group);
- IntegerVector out(group_uni.length());
- 
- for( int i = 0; i < group_uni.length(); i++ ){
-  for( int j = 0; j < group.length(); j++ ){
-   if(group[j] == group_uni[i]) out[i] += status[j];
-  }
- }
- 
- return(out);
- 
-}
 
 ```
 
@@ -249,8 +348,7 @@ __Step 3. Off to the races:__
 library(microbenchmark)
 microbenchmark(table = table(status, group)[2, ],
                tapply = tapply(status, group, FUN = sum),
-               rcpp_count_dbl = rcpp_count_dbl(status, group),
-               rcpp_count_int = rcpp_count_int(status, group))
+               rcpp_count_dbl = rcpp_count_dbl(status, group, 3))
 ```
 
 --
@@ -265,13 +363,12 @@ tbl_1 <- summary(bm) %>%
  select(-cld, -neval) %>%
  filter(expr %in% c("table",
                     "tapply",
-                    "rcpp_count_dbl",
-                    "rcpp_count_int")) %>% 
+                    "rcpp_count_dbl")) %>% 
  mutate(across(where(is.numeric), ~table_value(.x/1000))) %>%
  gt(rowname_col = 'expr') %>%
  tab_header(
   title = "Benchmark demonstration: counting events in groups",
-  subtitle = "table(), tapply(), and Rcpp functions"
+  subtitle = "table(), tapply(), and rcpp_count_dbl()"
  ) %>%
  cols_label(min = 'Minimum',
             lq = '25th %',
@@ -324,59 +421,11 @@ Copying and casting require additional memory, slowing down your code.
 ## How to trace?
 
 ```{r}
-
-data <- data.frame(x = 1:10)
-
-tracemem(data)
-
-```
-
-No copies here
-
-```{r}
-
-# as of R 4.0, `data_2` and `data` share memory
-data_2 <- data
-
-```
-
----
-## How to trace?
-
-that is, until `data_2` is modified: 
-
-```{r}
-
-data_2$x[1] <- 10
-
-```
-
-Yikes! Not just one, but _two_ memory messages
-
---
-
-- `data_2` is no longer the same as `data`, so they can't share memory
-
---
-
-- R assumes `10` is a double,<sup>1</sup> so `x` is cast from an integer double.
-
-```{r}
-# PS: don't forget to untrace
-untracemem(data)
-```
-
-.footnote[
-1. R also assumes `1:10` is integer valued, so `x` was originally created as an integer vector.
-]
-
----
-## So, who's copying data?
-
-```{r}
 tracemem(status)
 tracemem(group)
 ```
+
+Now, R will yell at me if data in `status` or `group` are copied or cast to a different type. 
 
 ---
 ## So, who's copying data?
@@ -407,6 +456,32 @@ rcpp_count_dbl(status, group, n_groups = 3)
 ```
 
 ---
+## Let's fix that
+
+```{Rcpp, eval = FALSE}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+IntegerVector rcpp_count_int(IntegerVector status,
+                             IntegerVector group,
+                             int n_groups) {
+
+ IntegerVector out(n_groups);
+
+ for( int i = 0; i < n_groups; i++ ){
+  for( int j = 0; j < group.length(); j++ ){
+   if(group[j] == i) out[i] += status[j];
+  }
+ }
+
+ return(out);
+}
+
+```
+
+
+---
 ## So, who's copying data?
 
 `rcpp_count_int` makes no copies
@@ -416,11 +491,46 @@ rcpp_count_int(status, group, n_groups = 3)
 ```
 
 ---
+class: center, middle
 
-## This makes more sense now
+## Better!
 
 ```{r, echo = FALSE}
-tbl_1
+
+tbl_2 <- summary(bm) %>%
+ select(-cld, -neval) %>%
+ filter(expr %in% c("table",
+                    "tapply",
+                    "rcpp_count_dbl",
+                    "rcpp_count_int")) %>% 
+ mutate(across(where(is.numeric), ~table_value(.x/1000))) %>%
+ gt(rowname_col = 'expr') %>%
+ tab_header(
+  title = "Benchmark demonstration: counting events in groups",
+  subtitle = "table(), tapply(), and Rcpp functions"
+ ) %>%
+ cols_label(min = 'Minimum',
+            lq = '25th %',
+            mean = 'Mean',
+            median = 'Median',
+            uq = '75th %',
+            max = 'Maximum') %>%
+ cols_align('center') %>%
+ tab_stubhead(label = 'Function') %>%
+ tab_spanner(columns = c("min", "lq", "mean", "median", "uq", "max"),
+             label = "Time, milliseconds") %>% 
+ tab_style(
+  style = list(
+   cell_fill(color = "#F9E3D6"),
+   cell_text(style = "italic")
+  ),
+  locations = cells_body(
+   columns = median
+  )
+ )
+
+tbl_2
+
 ```
 
 ---
@@ -523,7 +633,40 @@ knitr::include_graphics('ink/vecs_9.png')
 ```
 
 ---
-## 1 loop instead of 2
+
+```{Rcpp, eval = FALSE}
+
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+IntegerVector rcpp_count_1loop_int(IntegerVector status,
+                                   IntegerVector group,
+                                   int n_groups) {
+
+ IntegerVector out(n_groups);
+
+ IntegerVector::iterator i;
+
+ int j = 0;
+
+ for(i = group.begin() ; i != group.end(); ++i, ++j){
+
+  out[*i] += status[j];
+
+ }
+
+ return(out);
+
+}
+
+```
+
+
+---
+class: center, middle
+
+## Much better!
 
 ```{r, echo = FALSE}
 
@@ -571,6 +714,10 @@ class: center, middle
 # 4. Ride the Armadillo 
 
 ---
+background-image: url("img/meme_aorsf_car.png")
+background-size: 65%
+
+---
 
 ## Armadillo
 
@@ -585,7 +732,36 @@ knitr::include_url("http://arma.sourceforge.net/")
 ---
 ## Armadillo
 
-Faster memory access and low-level parallelization 
+```{Rcpp, eval = FALSE}
+#include <RcppArmadillo.h>
+#include <RcppArmadilloExtensions/sample.h>
+// [[Rcpp::depends(RcppArmadillo)]]
+using namespace Rcpp;
+using namespace arma;
+
+// [[Rcpp::export]]
+arma::ivec arma_count_1loop_int(arma::ivec& status,
+                                arma::ivec& group,
+                                arma::uword n_groups) {
+
+ ivec out(n_groups);
+ ivec::iterator i;
+ uword j = 0;
+
+ for(i = group.begin() ; i != group.end(); ++i, ++j){
+  out[*i] += status[j];
+ }
+
+ return(out);
+
+}
+
+```
+
+---
+class: center, middle
+
+## Better! (almost perfect)
 
 ```{r, echo = FALSE}
 

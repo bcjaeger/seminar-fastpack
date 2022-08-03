@@ -21,13 +21,16 @@ sourceCpp('src/count_events.cpp')
 status = sample(x = c(0L, 1L), size = 1e5, replace = TRUE)
 group = sample(x = 0:2, size = 1e5, replace = TRUE)
 
+y <- cbind(group, status)
+
 bm_1 <- microbenchmark(
  table              = table(status, group)[2, ],
  tapply             = tapply(status, group, sum),
  rcpp_count_dbl     = rcpp_count_dbl(status, group, n_groups = 3),
  rcpp_count_int     = rcpp_count_int(status, group, n_groups = 3),
- rcpp_count_1loop_int = rcpp_count_1loop_int(status, group, n_groups = 3),
+ rcpp_count_1loop_int  = rcpp_count_1loop_int(status, group, n_groups = 3),
  arma_count_1loop_int  = arma_count_1loop_int(status, group, n_groups = 3),
+ sum = sum(status),
  times = 1000
 )
 
