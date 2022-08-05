@@ -283,7 +283,7 @@ class: center, middle
 # 3. - ??? many other things...
 
 ---
-## Graduate training
+## Graduate (bio)statistics programs
 
 - Number of required courses on statistics and probability: 4+
 
@@ -291,11 +291,30 @@ class: center, middle
 
 - Number of required courses on software development: ???
 
-So how do most of us learn?
+--
+
+Some statisticians (maybe a lot??) are 'self-taught' programmers.
+
+- We learned from the internet.
+
+- What were we actually teaching ourselves?
 
 ---
-background-image: url("img/meme_software_books.jpg")
-background-size: 61%
+background-image: url("img/meme_software_books_1.png")
+background-size: 50%
+
+---
+background-image: url("img/meme_software_books_2.png")
+background-size: 50%
+
+---
+background-image: url("img/meme_software_books_3.png")
+background-size: 50%
+
+---
+background-image: url("img/meme_software_books_4.png")
+background-size: 50%
+
 
 ---
 ## obliqueRSF
@@ -345,6 +364,12 @@ figs_eval$`Concordance index`
 ```{r fig-eval-ipa, fig.align = 'left', fig.height = 6.5, fig.width = 9, echo = FALSE, dpi = 300}
 figs_eval$`Index of Prediction Accuracy`
 ```
+
+---
+background-image: url("img/aorsf-arxiv-paper.png")
+background-size: 85%
+
+## aorsf paper (https://arxiv.org/abs/2208.01129)
 
 ---
 background-image: url("img/aorsf-arxiv-qr.png")
@@ -903,4 +928,43 @@ tbl_3 <- summary(bm) %>%
 tbl_3
 
 ```
+
+
+
+---
+
+## Summary
+
+These guidelines were prominently used while I wrote `aorsf`
+
+1. Every function was benchmarked using multiple versions to discover what worked best.
+
+1. `tracemem` was used to discover unintentional copying
+
+1. `glmnet`, the core algorithm of `obliqueRSF`, was replaced with Newton Raphson scoring in `aorsf`. (__Fewer operations & better IPA__).
+
+1. Optimized with `RcppArmadillo`
+
+---
+
+## Thank you!
+
+Incredible team members: 
+
+- `aorsf`: Sawyer Welden, Kristin Lenoir, Jaime L. Speiser, Matthew W. Segar, Ambarish Pandey, and Nicholas M. Pajewski
+
+- today's talk: Jaime Lynn Speiser, Joseph Rigdon, Heather Marie Shappell, Nathaniel Sean O'Connell, and Michael Kattan.
+
+--
+
+Research reported in this presentation was supported<sup>1</sup> by 
+
+- Center for Biomedical Informatics, Wake Forest University School of Medicine. 
+
+- National Center for Advancing Translational Sciences (NCATS), National Institutes of Health, through Grant Award Number UL1TR001420. 
+
+.footnote[
+<sup>1</sup> The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH.
+]
+
 
