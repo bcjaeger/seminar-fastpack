@@ -332,12 +332,10 @@ In 2019, I made the `obliqueRSF` R package
 `obliqueRSF` had higher prediction accuracy versus:
 
 - `randomForestSRC`, 
-
 - `ranger`,
-
 - `party`. 
 
-- but was also hundreds of times slower.
+But was also hundreds of times slower.
 
 ---
 
@@ -426,7 +424,7 @@ tapply(status, group, FUN = sum)
 
 ## How to benchmark?
 
-__Step 2 contd.__ Enter your own competitor(s)!
+__Step 3 (optional).__ Enter your own competitor(s)!
 
 ```{r, echo = FALSE}
 knitr::include_graphics('ink/vecs_1.png')
@@ -436,7 +434,7 @@ knitr::include_graphics('ink/vecs_1.png')
 
 ## How to benchmark?
 
-__Step 2 contd.__ Enter your own competitor(s)!
+__Step 3 (optional).__ Enter your own competitor(s)!
 
 ```{r, echo = FALSE}
 knitr::include_graphics('ink/vecs_2.png')
@@ -446,7 +444,7 @@ knitr::include_graphics('ink/vecs_2.png')
 
 ## How to benchmark?
 
-__Step 2 contd.__ Enter your own competitor(s)!
+__Step 3 (optional).__ Enter your own competitor(s)!
 
 ```{r, echo = FALSE}
 knitr::include_graphics('ink/vecs_3.png')
@@ -457,7 +455,7 @@ knitr::include_graphics('ink/vecs_3.png')
 
 ## How to benchmark?
 
-__Step 2 contd.__ Enter your own competitor(s)!
+__Step 3 (optional).__ Enter your own competitor(s)!
 
 ```{r, echo = FALSE}
 knitr::include_graphics('ink/vecs_4.png')
@@ -468,7 +466,7 @@ knitr::include_graphics('ink/vecs_4.png')
 
 ## How to benchmark?
 
-__Step 2 contd.__ Enter your own competitor(s)!
+__Step 3 (optional).__ Enter your own competitor(s)!
 
 ```{Rcpp, eval = FALSE}
 #include <Rcpp.h>
@@ -497,7 +495,7 @@ NumericVector rcpp_count_dbl(NumericVector status,
 
 ## How to benchmark?
 
-__Step 3. Off to the races:__
+__Step 4. Off to the races:__
 
 ```{r, eval = FALSE}
 library(microbenchmark)
@@ -804,7 +802,6 @@ knitr::include_graphics('ink/vecs_9.png')
 code adapted from `rcpp_count_int`
 
 ```{Rcpp, eval = FALSE}
-
 #include <Rcpp.h>
 using namespace Rcpp;
 
@@ -959,37 +956,149 @@ tbl_3
 
 
 ---
+
+## aorsf
+
+These guidelines were prominently used while I wrote `aorsf`
+
+--
+
+1. I ran benchmarks for each function
+
+    + made multiple versions to discover what worked best.
+    + learned a lot about C++ from this!
+
+--
+
+2. I used `tracemem` to discover unintentional copying
+
+    + Did you know `glmnet` makes a copy of its data?
+    + `obliqueRSF` calls `glmnet` hundreds if not thousands of times
+
+--
+
+3. I used Newton Raphson scoring instead of `glmnet` (__Fewer operations & no copying__).
+
+--
+
+4. Optimized with `RcppArmadillo`
+
+---
 class: inverse, center, middle
 
-# Friendly API?
-(no time!)
+# User-Friendly API
+
+---
+
+## Names
+
+__be consistent__: use _one_ convention throughout your package
+
+- `snake_case`
+- `camelCase`
+- `SCREAMING_SNAKE`
+- `ConFuse.EVERY_one` (don't do it)
+
+Name functions with a __Noun__, then a __verb__, then __details__ (helps auto-completion & creates function families)
+
+- `orsf_vi_negate()`, `orsf_vi_anova()`, `orsf_vi_permute()`
+- `orsf_pd_ice()`, `orsf_pd_summary()`
+- `orsf_control_cph()`, `orsf_control_net()`
+
+__Exception:__ the modeling function is just the model name: 
+
+- `lm()`
+- `glm()`
+- `orsf()`
+
+---
+
+## Check arguments
+
+Vet inputs and write error messages that spark joy
+
+```{r, error=TRUE}
+
+library(aorsf)
+
+orsf_fit <- orsf(data = pbc_orsf, 
+                 formula = Surv(time, status) ~ one_variable) #<< 
+
+```
+
+---
+
+## Check arguments
+
+Vet inputs and write error messages that spark joy
+
+```{r, error=TRUE}
+
+pbc_orsf$date_var <- lubridate::today()
+pbc_orsf$char_var <- "random"
+
+orsf_fit <- orsf(data = pbc_orsf, #<< 
+                 formula = Surv(time, status) ~ . ) 
+
+```
+
+```{r, echo = FALSE}
+
+pbc_orsf$date_var <- NULL
+pbc_orsf$char_var <- NULL
+
+```
+
+---
+
+```{r, echo=FALSE}
+
+orsf_fit <- pbc_orsf %>% 
+ select(-id) %>%
+ orsf(formula = Surv(time, status) ~ .)
+
+```
+ 
+## Generic methods
+
+Include a generic `print` function (so your users won't hate you)
+
+```{r}
+
+print(orsf_fit)
+
+```
+
+---
+
+```{r, echo=FALSE}
+
+orsf_fit <- pbc_orsf %>% 
+ select(-id) %>%
+ orsf(formula = Surv(time, status) ~ ., n_tree = 1)
+
+```
+
+
+## Generic methods
+
+Include a generic `print` function (so your users won't hate you)
+
+```{r}
+
+print(unclass(orsf_fit))
+
+```
 
 ---
 
 ## Your guide to a friendly modeling package
 
-[click here](tidymodels.github.io/model-implementation-principles) to view this book from `tidymodels` online
+[click here](https://tidymodels.github.io/model-implementation-principles/) to view this book from `tidymodels` online
 
 ```{r, echo = FALSE}
 knitr::include_url("https://tidymodels.github.io/model-implementation-principles/index.html")
 ```
-
-
----
-
-## Summary
-
-These guidelines were prominently used while I wrote `aorsf`
-
-1. Every function was benchmarked using multiple versions to discover what worked best.
-
-1. `tracemem` was used to discover unintentional copying
-
-1. `glmnet`, the core algorithm of `obliqueRSF`, was replaced with Newton Raphson scoring in `aorsf`. (__Fewer operations & better IPA__).
-
-1. Optimized with `RcppArmadillo`
-
-Max Kuhn's guideline to developing modeling packages deserves more attention - use it!
 
 ---
 
