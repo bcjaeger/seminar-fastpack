@@ -12,7 +12,7 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
-class: center, middle, inverse
+class: center, middle
 
 ```{r setup, include=FALSE}
 
@@ -265,62 +265,24 @@ xaringanExtra::use_banner(
 ```
 
 
-# What do biostatisticians do?
+# (Bio)statisticians create methods that can engage with contemporary data and make valid conclusions
 
 ---
 class: center, middle
 
-# 1. Create methods that can engage with contemporary data and make valid conclusions
+# Statistical software allows these methods to be shared with investigators
 
 ---
-class: center, middle
+## From proprietary to open-source
 
-# 2. Share those methods
-
----
-class: center, middle
-
-# 3. - ??? many other things...
-
----
-## Graduate (bio)statistics programs
-
-- Number of required courses on statistics and probability: 4+
+When SAS and SPSS were prominent, methods were shared by incorporating them into proprietary software.
 
 --
 
-- Number of required courses on software development: ???
-
---
-
-Some statisticians (maybe a lot) are 'self-taught' programmers.
-
---
-
-- We learned from the internet.
-
---
-
-- What were we actually teaching ourselves?
+As R and Python have become standard languages for data science, it has become more common for authors to write their own software for methods.
 
 ---
-background-image: url("img/meme_software_books_1.png")
-background-size: 50%
 
----
-background-image: url("img/meme_software_books_2.png")
-background-size: 50%
-
----
-background-image: url("img/meme_software_books_3.png")
-background-size: 50%
-
----
-background-image: url("img/meme_software_books_4.png")
-background-size: 50%
-
-
----
 ## obliqueRSF
 
 In 2019, I made the `obliqueRSF` R package
@@ -383,7 +345,7 @@ class: center, middle, inverse
 # Four guidelines for faster code 
 
 ---
-class: center, middle, inverse
+class: center, middle
 
 # 1. Always be benchmarking
 
@@ -565,12 +527,17 @@ __Definition__ be notified when data are copied or cast to a different type
 ---
 ## How to trace?
 
-```{r}
+Put the object you want to trace into `tracemem()`: 
+
+```{r, results='hide'}
+
 tracemem(status)
 tracemem(group)
+
 ```
 
-R yells at me if `status` or `group` are copied or cast to a different type. 
+R will now notify you if `status` or `group` are copied or cast to a different type. 
+
 
 ---
 ## Here is a problem
@@ -690,7 +657,7 @@ tbl_2
 ```
 
 ---
-class: center, middle, inverse
+class: center, middle
 
 # 3. Count your operations
 
@@ -748,18 +715,6 @@ As $n, g \rightarrow \infty$, we use $\mathcal{O}(n \cdot g)$ operations, where 
 --
 
 Can we reduce the operation cost?
-
---
-
-- Can't remove the sum, so we have at least $n$ operations.
-
---
-
-- Can we sum by group without finding group indices?
-
---
-
-Yes, because the group indices are given to us by the group vector.
 
 ---
 ## 1 loop instead of 2
@@ -955,38 +910,38 @@ tbl_3
 
 
 
----
+<!-- --- -->
 
-## aorsf
+<!-- ## aorsf -->
 
-These guidelines were prominently used while I wrote `aorsf`
+<!-- These guidelines were prominently used while I wrote `aorsf` -->
 
---
+<!-- -- -->
 
-1. I ran benchmarks for each function
+<!-- 1. I ran benchmarks for each function -->
 
-    + made multiple versions to discover what worked best.
-    + learned a lot about C++ from this!
+<!--     + made multiple versions to discover what worked best. -->
+<!--     + learned a lot about C++ from this! -->
 
---
+<!-- -- -->
 
-2. I used `tracemem` to discover unintentional copying
+<!-- 2. I used `tracemem` to discover unintentional copying -->
 
-    + Did you know `glmnet` makes a copy of its data?
-    + `obliqueRSF` calls `glmnet` hundreds if not thousands of times
+<!--     + Did you know `glmnet` makes a copy of its data? -->
+<!--     + `obliqueRSF` calls `glmnet` hundreds if not thousands of times -->
 
---
+<!-- -- -->
 
-3. I used Newton Raphson scoring instead of `glmnet` (__Fewer operations & no copying__).
+<!-- 3. I used Newton Raphson scoring instead of `glmnet` (__Fewer operations & no copying__). -->
 
---
+<!-- -- -->
 
-4. Optimized with `RcppArmadillo`
+<!-- 4. Optimized with `RcppArmadillo` -->
 
 ---
 class: inverse, center, middle
 
-# User-Friendly API
+# Creating a Friendly API
 
 ---
 
