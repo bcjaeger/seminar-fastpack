@@ -1,6 +1,6 @@
 ---
-title: "Sharing your method with R(cpp)"
-subtitle: "Four guidelines for faster code"
+title: "Disseminating Prediction Methods"
+subtitle: "Avoiding Computational Bottlenecks and Developing User-Friendly APIs"
 author: "Byron C Jaeger"
 institute: "Wake Forest University School of Medicine"
 date: "2022/08/08 (updated: `r Sys.Date()`)"
@@ -12,7 +12,7 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
-class: center, middle
+class: center, middle, inverse
 
 ```{r setup, include=FALSE}
 
@@ -256,9 +256,9 @@ sourceCpp("src/count_events.cpp")
 ```{r xaringan-banner, echo=FALSE}
 
 xaringanExtra::use_banner(
- top_left = "Sharing methods with R(cpp)",
+ top_left = "",
  top_right = "Byron C Jaeger",
- bottom_left = "https://www.byronjaeger.com/talk/",
+ bottom_left = "byronjaeger.com/talk",
  exclude = c("inverse")
 )
 
@@ -293,9 +293,13 @@ class: center, middle
 
 --
 
-Some statisticians (maybe a lot??) are 'self-taught' programmers.
+Some statisticians (maybe a lot) are 'self-taught' programmers.
+
+--
 
 - We learned from the internet.
+
+--
 
 - What were we actually teaching ourselves?
 
@@ -337,7 +341,7 @@ In 2019, I made the `obliqueRSF` R package
 
 ---
 
-```{r fig-time-one, fig.align = 'left', fig.height = 6.5, fig.width = 8, echo = FALSE, dpi = 300}
+```{r fig-time-one, fig.align = 'left', fig.height = 6, fig.width = 8, echo = FALSE, dpi = 300}
 figs_time$slide_one
 ```
 
@@ -349,7 +353,7 @@ background-size: contain
 
 ---
 
-```{r fig-time-two, fig.align = 'left', fig.height = 6.5, fig.width = 8, echo = FALSE, dpi = 300}
+```{r fig-time-two, fig.align = 'left', fig.height = 6, fig.width = 8, echo = FALSE, dpi = 300}
 figs_time$slide_two
 ```
 
@@ -381,19 +385,14 @@ class: center, middle, inverse
 # Four guidelines for faster code 
 
 ---
-class: center, middle
+class: center, middle, inverse
 
 # 1. Always be benchmarking
 
 ---
-## Why benchmark?
+class: center, middle
 
-- it gives you data on how fast your code runs
-
---
-
-- it encourages you to write more modular functions (a good thing)
-
+# Why "always"? 
 
 ---
 ## How to benchmark?
@@ -557,21 +556,13 @@ class: center, middle
 # 2. Trace your data
 
 ---
-## What do you mean by trace?
+## Trace your data
 
-Tracing your data means being notified when 
-
-- your data are copied
+__Definition__ be notified when data are copied or cast to a different type
 
 --
 
-- your data are cast to a different type
-
---
-
-## So, why trace?
-
-Copying and casting require additional memory, slowing down your code.
+(Copying and casting require additional memory, slowing down your code.)
 
 ---
 ## How to trace?
@@ -586,10 +577,38 @@ R yells at me if `status` or `group` are copied or cast to a different type.
 ---
 ## Here is a problem
 
-`rcpp_count_dbl` casts both vectors from integer to double
+`rcpp_count_dbl` casts both `status` and `group` from integer to double
 
 ```{r}
 rcpp_count_dbl(status, group, n_groups = 3)
+```
+
+---
+## Here is a problem
+
+Our first `Rcpp` function expected numeric vectors. We gave it integers!
+
+```{Rcpp, eval = FALSE}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector rcpp_count_dbl(NumericVector status, #<<
+                             NumericVector group, #<<
+                             int n_groups) {
+ 
+ NumericVector out(n_groups); #<<
+ 
+ for( int i = 0; i < n_groups; i++ ){
+  for( int j = 0; j < group.length(); j++ ){
+   if(group[j] == i) out[i] += status[j];
+  }
+ }
+ 
+ return(out);
+}
+
+
 ```
 
 ---
@@ -602,11 +621,11 @@ use __integerVector__ instead of __numericVector__
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-IntegerVector rcpp_count_int(IntegerVector status,
-                             IntegerVector group,
+IntegerVector rcpp_count_int(IntegerVector status, #<<
+                             IntegerVector group, #<<
                              int n_groups) {
  
- IntegerVector out(n_groups);
+ IntegerVector out(n_groups); #<<
  
  for( int i = 0; i < n_groups; i++ ){
   for( int j = 0; j < group.length(); j++ ){
@@ -632,7 +651,7 @@ rcpp_count_int(status, group, n_groups = 3)
 ---
 class: center, middle
 
-## Better!
+## Faster
 
 ```{r, echo = FALSE}
 
@@ -673,21 +692,21 @@ tbl_2
 ```
 
 ---
-class: center, middle
+class: center, middle, inverse
 
 # 3. Count your operations
 
+(Number of operations $\approx$ speed of your code)
+
+
 ---
-## Why count operations?
-
-Number of operations $\approx$ computational cost of your code
-
 ## How to count
 
 You don't have to be exact - think big picture 
 
 ---
-## Example
+
+## How to count
 
 In our C++ function, we use $n$ operations for each unique value in `group`, 
 
@@ -696,7 +715,7 @@ knitr::include_graphics('ink/vecs_1.png')
 ```
 
 ---
-## Example
+## How to count
 
 In our C++ function, we use $n$ operations for each unique value in `group`, 
 
@@ -706,7 +725,7 @@ knitr::include_graphics('ink/vecs_2.png')
 ```
 
 ---
-## Example
+## How to count
 
 In our C++ function, we use $n$ operations for each unique value in `group`, 
 
@@ -715,7 +734,7 @@ knitr::include_graphics('ink/vecs_3.png')
 ```
 
 ---
-## Example
+## How to count
 
 In our C++ function, we use $n$ operations for each unique value in `group`, 
 
@@ -724,15 +743,23 @@ knitr::include_graphics('ink/vecs_4.png')
 ```
 
 ---
-## Example
+## How to count
 
 As $n, g \rightarrow \infty$, we use $\mathcal{O}(n \cdot g)$ operations, where $g$ = number of groups
 
+--
+
 Can we reduce the operation cost?
+
+--
 
 - Can't remove the sum, so we have at least $n$ operations.
 
-- Sum by group without finding group indices?
+--
+
+- Can we sum by group without finding group indices?
+
+--
 
 Yes, because the group indices are given to us by the group vector.
 
@@ -803,7 +830,7 @@ IntegerVector rcpp_count_1loop_int(IntegerVector status,
 ---
 class: center, middle
 
-## Much better!
+## Much faster!
 
 ```{r, echo = FALSE}
 
@@ -932,6 +959,23 @@ tbl_3
 
 
 ---
+class: inverse, center, middle
+
+# Friendly API?
+(no time!)
+
+---
+
+## Your guide to a friendly modeling package
+
+[click here](tidymodels.github.io/model-implementation-principles) to view this book from `tidymodels` online
+
+```{r, echo = FALSE}
+knitr::include_url("https://tidymodels.github.io/model-implementation-principles/index.html")
+```
+
+
+---
 
 ## Summary
 
@@ -944,6 +988,8 @@ These guidelines were prominently used while I wrote `aorsf`
 1. `glmnet`, the core algorithm of `obliqueRSF`, was replaced with Newton Raphson scoring in `aorsf`. (__Fewer operations & better IPA__).
 
 1. Optimized with `RcppArmadillo`
+
+Max Kuhn's guideline to developing modeling packages deserves more attention - use it!
 
 ---
 
@@ -966,5 +1012,8 @@ Research reported in this presentation was supported<sup>1</sup> by
 .footnote[
 <sup>1</sup> The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH.
 ]
+
+
+
 
 
