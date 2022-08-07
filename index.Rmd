@@ -976,24 +976,13 @@ Vet inputs and write error messages that spark joy
 
 library(aorsf)
 
-orsf_fit <- orsf(data = pbc_orsf, 
-                 formula = Surv(time, status) ~ one_variable) #<< 
+pbc_orsf$date_var <- lubridate::today() #<<
+pbc_orsf$char_var <- "I'm a character" #<<
 
-```
-
----
-
-## Check arguments
-
-Vet inputs and write error messages that spark joy
-
-```{r, error=TRUE}
-
-pbc_orsf$date_var <- lubridate::today()
-pbc_orsf$char_var <- "random"
-
-orsf_fit <- orsf(data = pbc_orsf, #<< 
-                 formula = Surv(time, status) ~ . ) 
+fit <- orsf(
+ data = pbc_orsf, 
+ formula = Surv(time, status) ~ date_var + char_var
+) 
 
 ```
 
@@ -1008,7 +997,7 @@ pbc_orsf$char_var <- NULL
 
 ```{r, echo=FALSE}
 
-orsf_fit <- pbc_orsf %>% 
+fit <- pbc_orsf %>% 
  select(-id) %>%
  orsf(formula = Surv(time, status) ~ .)
 
@@ -1020,7 +1009,7 @@ Include a generic `print` function (so your users won't hate you)
 
 ```{r}
 
-print(orsf_fit)
+print(fit)
 
 ```
 
@@ -1028,7 +1017,7 @@ print(orsf_fit)
 
 ```{r, echo=FALSE}
 
-orsf_fit <- pbc_orsf %>% 
+fit <- pbc_orsf %>% 
  select(-id) %>%
  orsf(formula = Surv(time, status) ~ ., n_tree = 1)
 
@@ -1041,7 +1030,7 @@ Include a generic `print` function (so your users won't hate you)
 
 ```{r}
 
-print(unclass(orsf_fit))
+print(unclass(fit))
 
 ```
 
